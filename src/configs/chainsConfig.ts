@@ -1,6 +1,6 @@
 import { Anchor } from 'ual-anchor';
 
-export default {
+const chainsConfig = {
   xpr: {
     name: 'XPR Network',
     imageUrl: '/xpr-icon-white.png',
@@ -12,3 +12,5 @@ export default {
     port: process.env.NEXT_PUBLIC_XPR_MAINNET_PORT,
   },
 };
+
+export default chainsConfig;
