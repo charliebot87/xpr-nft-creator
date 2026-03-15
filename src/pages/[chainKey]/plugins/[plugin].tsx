@@ -1,6 +1,7 @@
 import { withUAL } from 'ual-reactjs-renderer';
-import { GetServerSideProps } from 'next';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 import { Header } from '@components/Header';
 
@@ -14,15 +15,35 @@ import {
 
 interface PluginProps {
   ual: any;
-  type: string;
-  plugin: string;
-  chainKey: string;
-  collection: CollectionProps;
 }
 
-function Plugin({ ual, plugin, type, collection, chainKey }: PluginProps) {
+function Plugin({ ual }: PluginProps) {
+  const router = useRouter();
+  const { plugin, chainKey, type, collection: collectionName } = router.query;
+  const [collection, setCollection] = useState<CollectionProps | null>(null);
+
+  const pluginType = (type as string) || 'default';
+  const pluginName = plugin as string;
+  const chain = chainKey as string;
+
+  useEffect(() => {
+    if (collectionName && chain) {
+      getCollectionService(chain, {
+        collectionName: collectionName as string,
+      })
+        .then(({ data }) => {
+          setCollection(data.data);
+        })
+        .catch(() => {
+          // Collection not found, continue without it
+        });
+    }
+  }, [collectionName, chain]);
+
+  if (!pluginName || !chain) return null;
+
   const DynamicComponent = dynamic(() =>
-    import(`../../../plugins/${type}/${plugin}`).then((mod) => mod)
+    import(`../../../plugins/${pluginType}/${pluginName}`).then((mod) => mod)
   );
 
   const hasAuthorization = isAuthorizedAccount(ual, collection) as boolean;
@@ -34,17 +55,17 @@ function Plugin({ ual, plugin, type, collection, chainKey }: PluginProps) {
           breadcrumb={[
             [
               hasAuthorization ? 'My Collections' : 'Explorer',
-              hasAuthorization ? `/${chainKey}` : `/${chainKey}/explorer`,
+              hasAuthorization ? `/${chain}` : `/${chain}/explorer`,
             ],
             [
               collection.collection_name,
-              `/${chainKey}/collection/${collection.collection_name}`,
+              `/${chain}/collection/${collection.collection_name}`,
             ],
             [
               collectionTabs[5].name,
-              `/${chainKey}/collection/${collection.collection_name}?tab=${collectionTabs[5].key}`,
+              `/${chain}/collection/${collection.collection_name}?tab=${collectionTabs[5].key}`,
             ],
-            [plugin],
+            [pluginName],
           ]}
         ></Header.Root>
       )}
@@ -53,37 +74,5 @@ function Plugin({ ual, plugin, type, collection, chainKey }: PluginProps) {
     </>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const plugin = query.plugin as string;
-  const type = (query.type || 'default') as string;
-  const chainKey = query.chainKey as string;
-  const collectionName = query.collection as string;
-
-  try {
-    let collectionData;
-
-    if (collectionName) {
-      const { data: collection } = await getCollectionService(chainKey, {
-        collectionName,
-      });
-
-      collectionData = collection.data;
-    }
-
-    return {
-      props: {
-        type,
-        plugin,
-        chainKey,
-        collection: collectionData || null,
-      },
-    };
-  } catch (error) {
-    return {
-      notFound: true,
-    };
-  }
-};
 
 export default withUAL(Plugin);
