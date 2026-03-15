@@ -25,8 +25,12 @@ export function Login({ chainKey }: LoginProps) {
 
   if (!currentUser) {
     return (
-      <div>
-        <button type="button" className="btn btn-primary" onClick={handleLogin}>
+      <div className="px-4 md:px-0">
+        <button
+          type="button"
+          className="btn btn-primary whitespace-nowrap"
+          onClick={handleLogin}
+        >
           Connect Wallet
         </button>
         {authError && (

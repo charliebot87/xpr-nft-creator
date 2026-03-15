@@ -411,7 +411,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
 
         {/* Step 1: Select Token */}
         <div
-          className="rounded-2xl p-6"
+          className="rounded-2xl p-4 sm:p-6"
           style={{
             background: 'rgba(0,0,0,0.6)',
             border: '1px solid rgba(0,255,136,0.15)',
@@ -495,7 +495,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
             </div>
           ) : (
             <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto pr-1"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto pr-1"
               style={{ maxHeight: '420px' }}
             >
               {filteredTokens.map((token) => {
@@ -607,7 +607,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
         {/* Step 2: Holder List */}
         {selectedToken && (
           <div
-            className="rounded-2xl p-6"
+            className="rounded-2xl p-4 sm:p-6"
             style={{
               background: 'rgba(0,0,0,0.6)',
               border: '1px solid rgba(0,255,136,0.15)',
@@ -615,8 +615,8 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
             }}
           >
             {/* Header row */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center gap-3 flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6">
+              <div className="flex items-center gap-3 flex-1 flex-wrap">
                 <h2 className="headline-3 flex items-center gap-3">
                   <span
                     style={{
@@ -630,7 +630,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                 </h2>
 
                 {/* Token badge with image if available */}
-                <div className="flex items-center gap-2 ml-2">
+                <div className="flex items-center gap-2">
                   {selectedTokenImage && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -664,7 +664,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
 
               {/* Select / Deselect All */}
               {!loadingHolders && holders.length > 0 && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <button
                     type="button"
                     onClick={selectAll}
@@ -691,7 +691,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                     <Square size={14} />
                     None
                   </button>
-                  <span className="text-xs text-neutral-500 pl-2">
+                  <span className="text-xs text-neutral-500">
                     {selectedAccounts.size} selected
                   </span>
                 </div>
@@ -733,83 +733,85 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
 
                 {/* Holder list */}
                 <div
-                  className="rounded-xl overflow-hidden overflow-y-auto"
+                  className="rounded-xl overflow-x-auto overflow-y-auto"
                   style={{
                     maxHeight: '360px',
                     background: 'rgba(0,0,0,0.3)',
                     border: '1px solid rgba(0,255,136,0.08)',
                   }}
                 >
-                  {/* Column headers */}
-                  <div
-                    className="flex items-center px-4 py-2 text-xs font-semibold uppercase tracking-wider sticky top-0"
-                    style={{
-                      background: 'rgba(0,0,0,0.8)',
-                      borderBottom: '1px solid rgba(0,255,136,0.1)',
-                      color: 'rgba(0,255,136,0.5)',
-                    }}
-                  >
-                    <div className="w-7" />
-                    <div className="flex-1">#</div>
-                    <div className="flex-1">Account</div>
-                    <div className="text-right flex-1">Balance</div>
-                    <div className="text-right w-24">Wallet</div>
-                    <div className="text-right w-24">LP</div>
-                  </div>
+                  <div style={{ minWidth: '480px' }}>
+                    {/* Column headers */}
+                    <div
+                      className="flex items-center px-3 sm:px-4 py-2 text-xs font-semibold uppercase tracking-wider sticky top-0"
+                      style={{
+                        background: 'rgba(0,0,0,0.8)',
+                        borderBottom: '1px solid rgba(0,255,136,0.1)',
+                        color: 'rgba(0,255,136,0.5)',
+                      }}
+                    >
+                      <div className="w-5 sm:w-7" />
+                      <div className="w-8">{'#'}</div>
+                      <div className="flex-1">Account</div>
+                      <div className="text-right w-20 sm:w-24">Balance</div>
+                      <div className="text-right w-20 sm:w-24">Wallet</div>
+                      <div className="text-right w-16 sm:w-20">LP</div>
+                    </div>
 
-                  {filteredHolders.map((holder, i) => {
-                    const isChecked = selectedAccounts.has(holder.account);
-                    return (
-                      <button
-                        key={holder.account}
-                        type="button"
-                        onClick={() => toggleHolder(holder.account)}
-                        className="w-full flex items-center px-4 py-2.5 text-sm transition-all"
-                        style={{
-                          background: isChecked
-                            ? 'rgba(0,255,136,0.04)'
-                            : 'transparent',
-                          borderBottom: '1px solid rgba(255,255,255,0.03)',
-                        }}
-                      >
-                        <div className="w-7 flex-shrink-0">
-                          {isChecked ? (
-                            <CheckSquare
-                              size={16}
-                              style={{ color: '#00ff88' }}
-                            />
-                          ) : (
-                            <Square size={16} className="text-neutral-700" />
-                          )}
-                        </div>
-                        <div className="flex-1 text-left text-neutral-500 font-mono text-xs">
-                          {i + 1}
-                        </div>
-                        <div
-                          className="flex-1 text-left font-mono font-medium truncate"
-                          style={{ color: isChecked ? '#00ff88' : '#ccc' }}
+                    {filteredHolders.map((holder, i) => {
+                      const isChecked = selectedAccounts.has(holder.account);
+                      return (
+                        <button
+                          key={holder.account}
+                          type="button"
+                          onClick={() => toggleHolder(holder.account)}
+                          className="w-full flex items-center px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm transition-all"
+                          style={{
+                            background: isChecked
+                              ? 'rgba(0,255,136,0.04)'
+                              : 'transparent',
+                            borderBottom: '1px solid rgba(255,255,255,0.03)',
+                          }}
                         >
-                          {holder.account}
-                        </div>
-                        <div
-                          className="flex-1 text-right font-mono text-xs"
-                          style={{ color: isChecked ? '#00ff88' : '#888' }}
-                        >
-                          {formatAmount(holder.amount)}
-                        </div>
-                        <div className="w-24 text-right font-mono text-xs text-neutral-600">
-                          {holder.walletAmount != null
-                            ? formatAmount(holder.walletAmount)
-                            : '—'}
-                        </div>
-                        <div className="w-24 text-right font-mono text-xs text-neutral-600">
-                          {holder.lpAmount != null && holder.lpAmount > 0
-                            ? formatAmount(holder.lpAmount)
-                            : '—'}
-                        </div>
-                      </button>
-                    );
-                  })}
+                          <div className="w-5 sm:w-7 flex-shrink-0">
+                            {isChecked ? (
+                              <CheckSquare
+                                size={15}
+                                style={{ color: '#00ff88' }}
+                              />
+                            ) : (
+                              <Square size={15} className="text-neutral-700" />
+                            )}
+                          </div>
+                          <div className="w-8 text-left text-neutral-500 font-mono text-xs">
+                            {i + 1}
+                          </div>
+                          <div
+                            className="flex-1 text-left font-mono font-medium truncate text-xs sm:text-sm"
+                            style={{ color: isChecked ? '#00ff88' : '#ccc' }}
+                          >
+                            {holder.account}
+                          </div>
+                          <div
+                            className="w-20 sm:w-24 text-right font-mono text-xs"
+                            style={{ color: isChecked ? '#00ff88' : '#888' }}
+                          >
+                            {formatAmount(holder.amount)}
+                          </div>
+                          <div className="w-20 sm:w-24 text-right font-mono text-xs text-neutral-600">
+                            {holder.walletAmount != null
+                              ? formatAmount(holder.walletAmount)
+                              : '—'}
+                          </div>
+                          <div className="w-16 sm:w-20 text-right font-mono text-xs text-neutral-600">
+                            {holder.lpAmount != null && holder.lpAmount > 0
+                              ? formatAmount(holder.lpAmount)
+                              : '—'}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {filteredHolders.length === 0 && (
@@ -829,7 +831,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
         {/* Step 3: Configure & Execute Airdrop */}
         {selectedToken && selectedAccounts.size > 0 && (
           <div
-            className="rounded-2xl p-6"
+            className="rounded-2xl p-4 sm:p-6"
             style={{
               background: 'rgba(0,0,0,0.6)',
               border: '1px solid rgba(0,255,136,0.15)',
