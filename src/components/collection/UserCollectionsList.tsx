@@ -392,6 +392,102 @@ function UserCollectionsListComponent({
           ))}
         </div>
       </section>
+
+      {/* How to Airdrop guide */}
+      <section className="container pb-20">
+        <div
+          className="rounded-2xl p-8 sm:p-10"
+          style={{
+            background: 'rgba(0,0,0,0.5)',
+            border: '1px solid rgba(0,255,136,0.12)',
+          }}
+        >
+          <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-widest mb-2 text-center">
+            How to Airdrop
+          </h2>
+          <p className="text-center text-neutral-400 text-sm mb-8">
+            Reward your community in 4 steps
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                step: '01',
+                emoji: '🔑',
+                title: 'Connect Wallet',
+                detail:
+                  'Sign in with WebAuth — fingerprint, Face ID, or YubiKey. No seed phrases.',
+              },
+              {
+                step: '02',
+                emoji: '🎨',
+                title: 'Create Collection',
+                detail:
+                  'Set up schemas, upload artwork, and define templates for your NFTs.',
+              },
+              {
+                step: '03',
+                emoji: '🖼️',
+                title: 'Mint NFTs',
+                detail:
+                  'Mint from your templates in bulk — ready to send to your community.',
+              },
+              {
+                step: '04',
+                emoji: '🪂',
+                title: 'Airdrop',
+                detail:
+                  'Send to SimpleDEX token holders or any collection holders automatically.',
+              },
+            ].map(({ step, emoji, title, detail }) => (
+              <div
+                key={step}
+                className="flex flex-col items-center text-center"
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold mb-4"
+                  style={{
+                    background: 'rgba(0,255,136,0.08)',
+                    border: '1px solid rgba(0,255,136,0.25)',
+                    color: '#00ff88',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {step}
+                </div>
+                <div className="text-2xl mb-2">{emoji}</div>
+                <h3 className="text-sm font-bold text-white mb-1">{title}</h3>
+                <p className="text-xs text-neutral-500 leading-relaxed">
+                  {detail}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-neutral-800 text-center">
+            <p className="text-xs text-neutral-600">
+              Token holder airdrops are powered by{' '}
+              <a
+                href="https://dex.protonnz.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-neon hover:underline"
+              >
+                SimpleDEX
+              </a>{' '}
+              on{' '}
+              <a
+                href="https://xprnetwork.org"
+                target="_blank"
+                rel="noreferrer"
+                className="text-neon hover:underline"
+              >
+                XPR Network
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

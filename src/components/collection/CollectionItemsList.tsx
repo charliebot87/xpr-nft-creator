@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { MagnifyingGlass } from 'phosphor-react';
 import { ipfsEndpoint } from '@configs/globalsConfig';
+
+// Use AtomicAssets API image proxy as primary source for reliability
+function getCollectionImageUrl(img: string): string {
+  if (!img) return '';
+  // Try AtomicAssets image proxy first (more reliable than raw ipfs.io)
+  return `https://xpr.api.atomicassets.io/ipfs/${img}`;
+}
 import {
   listCollectionsService,
   CollectionProps,
@@ -90,7 +97,7 @@ export function CollectionItemsList({
                   key={index}
                   href={`/${chainKey}/collection/${collection.collection_name}`}
                   image={
-                    collection.img ? `${ipfsEndpoint}/${collection.img}` : ''
+                    collection.img ? getCollectionImageUrl(collection.img) : ''
                   }
                   title={collection.name}
                   subtitle={`by ${collection.author}`}

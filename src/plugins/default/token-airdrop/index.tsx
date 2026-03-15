@@ -7,12 +7,16 @@ import {
   CircleNotch,
   Coins,
   MagnifyingGlass,
-  Users,
   CheckSquare,
   Square,
   TrendUp,
   TrendDown,
   ArrowsClockwise,
+  Copy,
+  SortAscending,
+  SortDescending,
+  Check,
+  WarningCircle,
 } from 'phosphor-react';
 
 import { Modal } from '@components/Modal';
@@ -30,6 +34,9 @@ import {
 import { pluginInfo } from './config';
 
 type HolderInfo = TokenHolder;
+type SortMode = 'balance-desc' | 'alpha-asc';
+
+const PAGE_SIZE = 50;
 
 interface TokenAirdropProps {
   ual: any;
@@ -40,6 +47,7 @@ interface ModalState {
   message?: string;
   details?: string;
   transactionsIDs?: string[];
+  isSuccess?: boolean;
 }
 
 function formatMcap(mcap: number): string {
@@ -84,6 +92,11 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
   const [tokenSearch, setTokenSearch] = useState('');
   const [holderSearch, setHolderSearch] = useState('');
   const [modal, setModal] = useState<ModalState>({ title: '' });
+  const [tokenFetchError, setTokenFetchError] = useState<string | null>(null);
+  const [holderFetchError, setHolderFetchError] = useState<string | null>(null);
+  const [copiedHolders, setCopiedHolders] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>('balance-desc');
+  const [holderPage, setHolderPage] = useState(1);
 
   // Dropdown states for collection/schema/template
   const [collections, setCollections] = useState<string[]>([]);
@@ -104,28 +117,31 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
     ual?.activeUser?.chainId ?? ual?.activeUser?.chain?.chainId;
   const chainId = chainsConfig[chainKey as string]?.chainId;
 
-  // Fetch tokens from SimpleDEX indexer
   async function fetchTokens() {
     setLoadingTokens(true);
+    setTokenFetchError(null);
     try {
       const data = await getSimpleDexTokens();
       setTokens(data);
     } catch (err) {
       console.error('Token fetch error:', err);
       setTokens([]);
+      setTokenFetchError(
+        'Unable to load tokens from SimpleDEX. Please check your connection and try again.'
+      );
     }
     setLoadingTokens(false);
   }
 
-  // Fetch holders for a specific token, also grab imageUrl from full token data
   async function fetchHolders(token: SimpleDexToken) {
     setLoadingHolders(true);
     setHolders([]);
     setSelectedAccounts(new Set());
     setSelectedTokenImage(null);
+    setHolderFetchError(null);
+    setHolderPage(1);
 
     try {
-      // Fetch full token info for the image
       const fullRes = await fetch(
         `https://indexer.protonnz.com/api/tokens?symbol=${token.symbol}`,
         { headers: { 'User-Agent': 'XPR-NFT-Creator/1.0' } }
@@ -138,17 +154,19 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
         }
       }
     } catch {
-      // image is optional
+      // image is optional, continue
     }
 
     try {
       const data = await getTokenHolders(token.tokenId);
       setHolders(data);
-      // Select all by default
       setSelectedAccounts(new Set(data.map((h) => h.account)));
     } catch (err) {
       console.error('Holder fetch error:', err);
       setHolders([]);
+      setHolderFetchError(
+        `Could not load holders for ${token.symbol}. The indexer may be temporarily unavailable.`
+      );
     }
     setLoadingHolders(false);
   }
@@ -159,7 +177,6 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
     }
   }, [chainId, chainIdLogged]);
 
-  // Fetch collections when user is logged in
   useEffect(() => {
     if (!ual?.activeUser?.accountName) return;
     const accountName = ual.activeUser.accountName;
@@ -183,15 +200,12 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
           (c: { collection_name: string }) => c.collection_name
         );
         setCollections(names);
-        if (names.length === 1) {
-          setSelectedCollection(names[0]);
-        }
+        if (names.length === 1) setSelectedCollection(names[0]);
       })
       .catch(() => setCollections([]))
       .finally(() => setLoadingCollections(false));
   }, [ual?.activeUser?.accountName, chainKey]);
 
-  // Fetch schemas when collection is selected
   useEffect(() => {
     if (!selectedCollection) {
       setSchemas([]);
@@ -218,15 +232,12 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
           (s: { schema_name: string }) => s.schema_name
         );
         setSchemas(names);
-        if (names.length === 1) {
-          setSelectedSchema(names[0]);
-        }
+        if (names.length === 1) setSelectedSchema(names[0]);
       })
       .catch(() => setSchemas([]))
       .finally(() => setLoadingSchemas(false));
   }, [selectedCollection, chainKey]);
 
-  // Fetch templates when schema is selected
   useEffect(() => {
     if (!selectedCollection || !selectedSchema) {
       setTemplates([]);
@@ -256,9 +267,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
           })
         );
         setTemplates(items);
-        if (items.length === 1) {
-          setSelectedTemplateId(items[0].template_id);
-        }
+        if (items.length === 1) setSelectedTemplateId(items[0].template_id);
       })
       .catch(() => setTemplates([]))
       .finally(() => setLoadingTemplates(false));
@@ -274,32 +283,46 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
     [tokens, tokenSearch]
   );
 
-  const filteredHolders = useMemo(
-    () =>
-      holders.filter((h) =>
-        h.account?.toLowerCase().includes(holderSearch.toLowerCase())
-      ),
-    [holders, holderSearch]
+  const sortedFilteredHolders = useMemo(() => {
+    const filtered = holders.filter((h) =>
+      h.account?.toLowerCase().includes(holderSearch.toLowerCase())
+    );
+    if (sortMode === 'balance-desc') {
+      return [...filtered].sort((a, b) => b.amount - a.amount);
+    }
+    return [...filtered].sort((a, b) => a.account.localeCompare(b.account));
+  }, [holders, holderSearch, sortMode]);
+
+  const paginatedHolders = useMemo(
+    () => sortedFilteredHolders.slice(0, holderPage * PAGE_SIZE),
+    [sortedFilteredHolders, holderPage]
   );
+
+  const hasMoreHolders = paginatedHolders.length < sortedFilteredHolders.length;
 
   function toggleHolder(account: string) {
     setSelectedAccounts((prev) => {
       const next = new Set(prev);
-      if (next.has(account)) {
-        next.delete(account);
-      } else {
-        next.add(account);
-      }
+      if (next.has(account)) next.delete(account);
+      else next.add(account);
       return next;
     });
   }
 
   function selectAll() {
-    setSelectedAccounts(new Set(filteredHolders.map((h) => h.account)));
+    setSelectedAccounts(new Set(sortedFilteredHolders.map((h) => h.account)));
   }
 
   function deselectAll() {
     setSelectedAccounts(new Set());
+  }
+
+  function copyHolderList() {
+    const list = Array.from(selectedAccounts).join('\n');
+    navigator.clipboard.writeText(list).then(() => {
+      setCopiedHolders(true);
+      setTimeout(() => setCopiedHolders(false), 2000);
+    });
   }
 
   async function handleAirdrop() {
@@ -309,16 +332,11 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
     setSubmitting(true);
     try {
       const holderAccounts = Array.from(selectedAccounts);
-
-      // Build mint actions for each holder
       const actions = holderAccounts.map((account) => ({
         account: 'atomicassets',
         name: 'mintasset',
         authorization: [
-          {
-            actor: ual.activeUser.accountName,
-            permission: 'active',
-          },
+          { actor: ual.activeUser.accountName, permission: 'active' },
         ],
         data: {
           authorized_minter: ual.activeUser.accountName,
@@ -332,7 +350,6 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
         },
       }));
 
-      // Batch in groups of 50
       const batchSize = 50;
       const transactionsIDs: string[] = [];
 
@@ -342,26 +359,26 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
           { actions: batch },
           { blocksBehind: 3, expireSeconds: 60 }
         );
-        if (result.transactionId) {
-          transactionsIDs.push(result.transactionId);
-        }
+        if (result.transactionId) transactionsIDs.push(result.transactionId);
       }
 
       modalRef.current?.openModal();
       setModal({
-        title: 'Token Airdrop Successful!',
-        message: `Minted NFTs to ${holderAccounts.length} token holders.`,
+        title: 'Airdrop Successful!',
+        message: `Minted NFTs to ${holderAccounts.length} token holders across ${transactionsIDs.length} transaction(s).`,
         transactionsIDs,
+        isSuccess: true,
       });
-    } catch (error) {
+    } catch (error: any) {
       modalRef.current?.openModal();
-      const details = JSON.stringify(error, undefined, 2);
       setModal({
-        title: 'Airdrop Error',
+        title: 'Airdrop Failed',
         message:
           error?.cause?.json?.error?.details?.[0]?.message ||
-          'Failed to airdrop NFTs',
-        details,
+          error?.message ||
+          'Something went wrong. Please try again.',
+        details: undefined,
+        isSuccess: false,
       });
     }
     setSubmitting(false);
@@ -448,6 +465,33 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
             </button>
           </div>
 
+          {/* Error banner */}
+          {tokenFetchError && (
+            <div
+              className="flex items-center gap-3 rounded-xl px-4 py-3 mb-5"
+              style={{
+                background: 'rgba(255,77,77,0.08)',
+                border: '1px solid rgba(255,77,77,0.25)',
+              }}
+            >
+              <WarningCircle
+                size={18}
+                style={{ color: '#ff4d4d', flexShrink: 0 }}
+              />
+              <span className="text-sm" style={{ color: '#ff4d4d' }}>
+                {tokenFetchError}
+              </span>
+              <button
+                type="button"
+                onClick={fetchTokens}
+                className="ml-auto text-xs underline"
+                style={{ color: '#ff4d4d' }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           {/* Search */}
           <div className="mb-5">
             <div
@@ -486,12 +530,18 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
               className="flex items-center justify-center gap-3 py-16"
               style={{ color: '#00ff88' }}
             >
-              <CircleNotch size={24} className="animate-spin" />
+              <div className="matrix-spinner">
+                <div className="matrix-spinner-outer" />
+                <div className="matrix-spinner-inner" />
+                <div className="matrix-spinner-dot" />
+              </div>
               <span className="text-sm">Loading tokens from SimpleDEX...</span>
             </div>
-          ) : filteredTokens.length === 0 ? (
+          ) : filteredTokens.length === 0 && !tokenFetchError ? (
             <div className="text-center py-12 text-neutral-500">
-              No tokens found matching &quot;{tokenSearch}&quot;
+              {tokenSearch
+                ? `No tokens found matching "${tokenSearch}"`
+                : 'No tokens available'}
             </div>
           ) : (
             <div
@@ -525,21 +575,39 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                     }}
                   >
                     <div className="flex items-start gap-3">
-                      {/* Token symbol badge (no image in compact API) */}
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
-                        style={{
-                          background: isSelected
-                            ? 'rgba(0,255,136,0.15)'
-                            : 'rgba(255,255,255,0.05)',
-                          border: isSelected
-                            ? '1px solid rgba(0,255,136,0.3)'
-                            : '1px solid rgba(255,255,255,0.08)',
-                          color: isSelected ? '#00ff88' : '#aaa',
-                        }}
-                      >
-                        {token.symbol.slice(0, 3)}
-                      </div>
+                      {/* Token image or symbol badge */}
+                      {(token as any).imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={(token as any).imageUrl}
+                          alt={token.symbol}
+                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                          style={{
+                            border: isSelected
+                              ? '1px solid rgba(0,255,136,0.4)'
+                              : '1px solid rgba(255,255,255,0.08)',
+                          }}
+                          onError={(e) => {
+                            const el = e.target as HTMLImageElement;
+                            el.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
+                          style={{
+                            background: isSelected
+                              ? 'rgba(0,255,136,0.15)'
+                              : 'rgba(255,255,255,0.05)',
+                            border: isSelected
+                              ? '1px solid rgba(0,255,136,0.3)'
+                              : '1px solid rgba(255,255,255,0.08)',
+                            color: isSelected ? '#00ff88' : '#aaa',
+                          }}
+                        >
+                          {token.symbol.slice(0, 3)}
+                        </div>
+                      )}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -569,7 +637,6 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                       </div>
                     </div>
 
-                    {/* Price + Mcap row */}
                     <div className="mt-3 flex items-end justify-between">
                       <div>
                         <div
@@ -629,7 +696,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                   <span className="text-white">Holders</span>
                 </h2>
 
-                {/* Token badge with image if available */}
+                {/* Token badge with image */}
                 <div className="flex items-center gap-2">
                   {selectedTokenImage && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -662,9 +729,37 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                 )}
               </div>
 
-              {/* Select / Deselect All */}
+              {/* Controls: sort, select, copy */}
               {!loadingHolders && holders.length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
+                  {/* Sort toggle */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSortMode((prev) =>
+                        prev === 'balance-desc' ? 'alpha-asc' : 'balance-desc'
+                      )
+                    }
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all"
+                    title={
+                      sortMode === 'balance-desc'
+                        ? 'Sort by balance (high to low)'
+                        : 'Sort A-Z'
+                    }
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#aaa',
+                    }}
+                  >
+                    {sortMode === 'balance-desc' ? (
+                      <SortDescending size={14} />
+                    ) : (
+                      <SortAscending size={14} />
+                    )}
+                    {sortMode === 'balance-desc' ? 'Balance' : 'A–Z'}
+                  </button>
+
                   <button
                     type="button"
                     onClick={selectAll}
@@ -691,6 +786,29 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                     <Square size={14} />
                     None
                   </button>
+
+                  {selectedAccounts.size > 0 && (
+                    <button
+                      type="button"
+                      onClick={copyHolderList}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all"
+                      style={{
+                        background: copiedHolders
+                          ? 'rgba(0,255,136,0.15)'
+                          : 'rgba(255,255,255,0.04)',
+                        border: copiedHolders
+                          ? '1px solid rgba(0,255,136,0.4)'
+                          : '1px solid rgba(255,255,255,0.1)',
+                        color: copiedHolders ? '#00ff88' : '#aaa',
+                      }}
+                    >
+                      {copiedHolders ? <Check size={14} /> : <Copy size={14} />}
+                      {copiedHolders
+                        ? 'Copied!'
+                        : `Copy (${selectedAccounts.size})`}
+                    </button>
+                  )}
+
                   <span className="text-xs text-neutral-500">
                     {selectedAccounts.size} selected
                   </span>
@@ -698,12 +816,43 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
               )}
             </div>
 
+            {/* Holder fetch error */}
+            {holderFetchError && (
+              <div
+                className="flex items-center gap-3 rounded-xl px-4 py-3 mb-4"
+                style={{
+                  background: 'rgba(255,77,77,0.08)',
+                  border: '1px solid rgba(255,77,77,0.25)',
+                }}
+              >
+                <WarningCircle
+                  size={18}
+                  style={{ color: '#ff4d4d', flexShrink: 0 }}
+                />
+                <span className="text-sm" style={{ color: '#ff4d4d' }}>
+                  {holderFetchError}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => fetchHolders(selectedToken)}
+                  className="ml-auto text-xs underline"
+                  style={{ color: '#ff4d4d' }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
             {loadingHolders ? (
               <div
                 className="flex items-center justify-center gap-3 py-16"
                 style={{ color: '#00ff88' }}
               >
-                <CircleNotch size={24} className="animate-spin" />
+                <div className="matrix-spinner">
+                  <div className="matrix-spinner-outer" />
+                  <div className="matrix-spinner-inner" />
+                  <div className="matrix-spinner-dot" />
+                </div>
                 <span className="text-sm">Fetching holder list...</span>
               </div>
             ) : holders.length > 0 ? (
@@ -725,7 +874,10 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                       type="text"
                       placeholder="Search holders..."
                       value={holderSearch}
-                      onChange={(e) => setHolderSearch(e.target.value)}
+                      onChange={(e) => {
+                        setHolderSearch(e.target.value);
+                        setHolderPage(1);
+                      }}
                       className="flex-1 bg-transparent outline-none text-white placeholder-neutral-700 text-sm"
                     />
                   </div>
@@ -733,9 +885,8 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
 
                 {/* Holder list */}
                 <div
-                  className="rounded-xl overflow-x-auto overflow-y-auto"
+                  className="rounded-xl overflow-x-auto"
                   style={{
-                    maxHeight: '360px',
                     background: 'rgba(0,0,0,0.3)',
                     border: '1px solid rgba(0,255,136,0.08)',
                   }}
@@ -758,7 +909,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                       <div className="text-right w-16 sm:w-20">LP</div>
                     </div>
 
-                    {filteredHolders.map((holder, i) => {
+                    {paginatedHolders.map((holder, i) => {
                       const isChecked = selectedAccounts.has(holder.account);
                       return (
                         <button
@@ -814,17 +965,44 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                   </div>
                 </div>
 
-                {filteredHolders.length === 0 && (
+                {sortedFilteredHolders.length === 0 && (
                   <div className="text-center py-8 text-neutral-600 text-sm">
                     No holders match &quot;{holderSearch}&quot;
                   </div>
                 )}
+
+                {/* Load More */}
+                {hasMoreHolders && (
+                  <div className="flex justify-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setHolderPage((p) => p + 1)}
+                      className="px-6 py-2 rounded-xl text-sm font-medium transition-all"
+                      style={{
+                        background: 'rgba(0,255,136,0.08)',
+                        border: '1px solid rgba(0,255,136,0.25)',
+                        color: '#00ff88',
+                      }}
+                    >
+                      Load More (
+                      {sortedFilteredHolders.length - paginatedHolders.length}{' '}
+                      remaining)
+                    </button>
+                  </div>
+                )}
+
+                {!hasMoreHolders &&
+                  sortedFilteredHolders.length > PAGE_SIZE && (
+                    <div className="text-center mt-3 text-xs text-neutral-600">
+                      Showing all {sortedFilteredHolders.length} holders
+                    </div>
+                  )}
               </>
-            ) : (
+            ) : !holderFetchError ? (
               <div className="text-center py-12 text-neutral-500">
                 No holders found for {selectedToken.symbol}.
               </div>
-            )}
+            ) : null}
           </div>
         )}
 
@@ -1132,29 +1310,47 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
         )}
 
         <Modal ref={modalRef} title={modal.title}>
-          <p className="body-2 mt-2 text-neutral-300">{modal.message}</p>
-          {modal.details && (
-            <pre
-              className="mt-4 p-3 rounded-lg text-xs font-mono overflow-auto max-h-40 text-red-400"
-              style={{
-                background: 'rgba(255,0,0,0.05)',
-                border: '1px solid rgba(255,0,0,0.1)',
-              }}
-            >
-              {modal.details}
-            </pre>
+          {modal.isSuccess && (
+            <div className="flex items-center gap-2 mt-2 mb-3">
+              <Check size={20} style={{ color: '#00ff88' }} />
+              <span
+                className="text-sm font-medium"
+                style={{ color: '#00ff88' }}
+              >
+                Success
+              </span>
+            </div>
           )}
-          {modal.transactionsIDs?.map((tx) => (
-            <Link
-              className="flex py-2 underline underline-offset-2"
-              key={tx}
-              href={`https://explorer.xprnetwork.org/transaction/${tx}`}
-              target="_blank"
-              style={{ color: '#00ff88' }}
-            >
-              <span className="break-all font-mono text-sm">{tx}</span>
-            </Link>
-          ))}
+          {!modal.isSuccess && modal.message && (
+            <div className="flex items-center gap-2 mt-2 mb-3">
+              <WarningCircle size={20} style={{ color: '#ff4d4d' }} />
+              <span
+                className="text-sm font-medium"
+                style={{ color: '#ff4d4d' }}
+              >
+                Error
+              </span>
+            </div>
+          )}
+          <p className="body-2 text-neutral-300">{modal.message}</p>
+          {modal.transactionsIDs && modal.transactionsIDs.length > 0 && (
+            <div className="mt-4">
+              <p className="text-xs text-neutral-500 mb-2 font-semibold uppercase tracking-wider">
+                Transaction IDs
+              </p>
+              {modal.transactionsIDs.map((tx) => (
+                <Link
+                  className="flex py-2 underline underline-offset-2"
+                  key={tx}
+                  href={`https://explorer.xprnetwork.org/transaction/${tx}`}
+                  target="_blank"
+                  style={{ color: '#00ff88' }}
+                >
+                  <span className="break-all font-mono text-sm">{tx}</span>
+                </Link>
+              ))}
+            </div>
+          )}
         </Modal>
       </div>
     );
