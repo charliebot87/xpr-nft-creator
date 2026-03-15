@@ -8,6 +8,15 @@ export interface SimpleDexToken {
   graduated: boolean;
   price: number;
   mcap: number;
+  change24h?: number;
+  volume24h?: number;
+}
+
+export interface TokenHolder {
+  account: string;
+  amount: number;
+  walletAmount?: number;
+  lpAmount?: number;
 }
 
 export async function getSimpleDexCreators(): Promise<string[]> {
@@ -38,12 +47,10 @@ export async function getSimpleDexTokens(): Promise<SimpleDexToken[]> {
   }
 }
 
-export async function getTokenHolders(
-  tokenId: number
-): Promise<{ account: string; balance: string }[]> {
+export async function getTokenHolders(tokenId: number): Promise<TokenHolder[]> {
   try {
     const res = await fetch(
-      `${INDEXER_URL}/api/tokens/${tokenId}/holders?limit=200`,
+      `${INDEXER_URL}/api/tokens/${tokenId}/holders?limit=500`,
       {
         headers: { 'User-Agent': 'XPR-NFT-Creator/1.0' },
       }

@@ -47,7 +47,7 @@ export function CardContent({
               alt={title}
               src={image}
               fill
-              className="object-cover"
+              className="object-cover pointer-events-none"
               sizes="max-w-lg"
             />
           )}

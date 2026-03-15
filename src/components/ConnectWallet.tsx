@@ -11,7 +11,11 @@ function ConnectWalletComponent({ ual }: any) {
         <span className="headline-3">
           You need to connect your wallet to continue.
         </span>
-        <button type="button" className="btn" onClick={handleLogin}>
+        <button
+          type="button"
+          className="btn btn-connect-wallet"
+          onClick={handleLogin}
+        >
           Connect Wallet
         </button>
       </div>

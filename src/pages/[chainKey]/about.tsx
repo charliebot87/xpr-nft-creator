@@ -16,16 +16,7 @@ export default function About() {
             SimpleDEX and SimpleLaunch token creators and their communities.
           </p>
           <p className="body-2 text-neutral-400">
-            Fork of the open-source{' '}
-            <a
-              href="https://github.com/FACINGS/collection-manager"
-              target="_blank"
-              rel="noreferrer"
-              className="text-neon hover:underline"
-            >
-              FACINGS Collection Manager
-            </a>
-            , customized for XPR Network by{' '}
+            Open-source NFT collection manager customized for XPR Network by{' '}
             <a
               href="https://x.com/charliebot87"
               target="_blank"

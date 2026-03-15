@@ -202,8 +202,8 @@
     transition: opacity 0.4s ease;
   }
   .conspiracy-card:hover {
-    border-color: rgba(0, 255, 136, 0.2);
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.06), 0 8px 30px rgba(0, 0, 0, 0.3);
+    border-color: #00ff88;
+    box-shadow: 0 0 18px rgba(0, 255, 136, 0.35), 0 0 40px rgba(0, 255, 136, 0.12), 0 8px 30px rgba(0, 0, 0, 0.3);
     transform: translateY(-3px) scale(1.02);
   }
   .conspiracy-card:hover::before {
@@ -255,6 +255,72 @@
   .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
   .animate-border-glow { animation: border-glow 4s ease-in-out infinite; }
   .animate-text-glow { animation: text-glow 3s ease-in-out infinite; }
+
+  /* Connect Wallet button neon pulse */
+  @keyframes wallet-pulse {
+    0%, 100% {
+      box-shadow: 0 0 6px rgba(0, 255, 136, 0.4), 0 0 12px rgba(0, 255, 136, 0.2);
+      border-color: rgba(0, 255, 136, 0.6);
+    }
+    50% {
+      box-shadow: 0 0 18px rgba(0, 255, 136, 0.7), 0 0 36px rgba(0, 255, 136, 0.35), 0 0 60px rgba(0, 255, 136, 0.15);
+      border-color: #00ff88;
+    }
+  }
+  .btn-connect-wallet {
+    animation: wallet-pulse 2s ease-in-out infinite;
+  }
+
+  /* Matrix spinner */
+  @keyframes matrix-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes matrix-inner-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes matrix-fade {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .matrix-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 48px;
+    height: 48px;
+  }
+  .matrix-spinner-outer {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #00ff88;
+    border-right-color: rgba(0, 255, 136, 0.3);
+    animation: matrix-spin 1s linear infinite;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+  }
+  .matrix-spinner-inner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-bottom-color: #00ff88;
+    border-left-color: rgba(0, 255, 136, 0.3);
+    animation: matrix-inner-spin 0.8s linear infinite;
+  }
+  .matrix-spinner-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 6px rgba(0, 255, 136, 0.8);
+    animation: matrix-fade 1s ease-in-out infinite;
+  }
 
   /* Form section */
   .form-section {
