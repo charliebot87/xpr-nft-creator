@@ -64,7 +64,7 @@ export function TopAppBar() {
             Plugins
           </NavItem>
           <NavItem
-            href="https://github.com/FACINGS/collection-manager/tree/main/docs/user-guide.md"
+            href="https://github.com/charliebot87/xpr-nft-creator"
             onClick={() => setOpen(false)}
             target="_blank"
           >

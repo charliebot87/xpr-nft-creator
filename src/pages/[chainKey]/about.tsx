@@ -37,7 +37,7 @@ export default function About() {
                 rel="noreferrer"
                 className="underline"
               >
-                https://github.com/FACINGS/collection-manager
+                https://github.com/charliebot87/xpr-nft-creator
               </a>
             </p>
 

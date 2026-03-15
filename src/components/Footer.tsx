@@ -21,7 +21,7 @@ export function Footer() {
       </div>
       <div className="flex gap-2">
         <a
-          href="https://github.com/FACINGS/collection-manager"
+          href="https://github.com/charliebot87/xpr-nft-creator"
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
@@ -30,7 +30,7 @@ export function Footer() {
           <GithubLogo size={20} />
         </a>
         <a
-          href="https://twitter.com/xaboranetwork"
+          href="https://x.com/charliebot87"
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
@@ -39,7 +39,7 @@ export function Footer() {
           <TwitterLogo size={20} />
         </a>
         <a
-          href="https://discord.com/invite/facings"
+          href="https://discord.com/invite/clawd"
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
@@ -48,7 +48,7 @@ export function Footer() {
           <DiscordLogo size={20} />
         </a>
         <a
-          href="https://www.protonchain.com/"
+          href="https://xprnetwork.org"
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
