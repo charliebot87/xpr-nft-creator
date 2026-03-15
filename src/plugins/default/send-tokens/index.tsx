@@ -7,13 +7,17 @@ import {
   CircleNotch,
   PaperPlaneTilt,
   MagnifyingGlass,
-  Users,
   CheckSquare,
   Square,
   Coins,
   ArrowsClockwise,
   ListBullets,
   UsersFour,
+  Check,
+  WarningCircle,
+  DownloadSimple,
+  Scales,
+  Equals,
 } from 'phosphor-react';
 
 import { Modal } from '@components/Modal';
@@ -39,27 +43,32 @@ interface UserToken {
   amount: number;
 }
 
-interface ModalState {
-  title: string;
-  message?: string;
-  details?: string;
-  transactionsIDs?: string[];
+interface TxRecord {
+  accounts: string[];
+  amounts: number[];
+  txId: string;
 }
 
 type RecipientMode = 'manual' | 'simpledex';
+type SendMode = 'equal' | 'proportional';
 
 function SendTokens({ ual }: { ual: any }) {
   const modalRef = useRef<any>(null);
+  const confirmRef = useRef<any>(null);
   const router = useRouter();
   const { chainKey } = router.query;
 
   // User token balances
   const [userTokens, setUserTokens] = useState<UserToken[]>([]);
   const [loadingBalances, setLoadingBalances] = useState(false);
+  const [balanceError, setBalanceError] = useState<string | null>(null);
   const [selectedToken, setSelectedToken] = useState<UserToken | null>(null);
 
   // Recipient mode
   const [recipientMode, setRecipientMode] = useState<RecipientMode>('manual');
+
+  // Send mode
+  const [sendMode, setSendMode] = useState<SendMode>('equal');
 
   // Manual recipients
   const [manualInput, setManualInput] = useState('');
@@ -67,10 +76,12 @@ function SendTokens({ ual }: { ual: any }) {
   // SimpleDEX recipients
   const [dexTokens, setDexTokens] = useState<SimpleDexToken[]>([]);
   const [loadingDexTokens, setLoadingDexTokens] = useState(false);
+  const [dexTokenError, setDexTokenError] = useState<string | null>(null);
   const [selectedDexToken, setSelectedDexToken] =
     useState<SimpleDexToken | null>(null);
   const [dexHolders, setDexHolders] = useState<TokenHolder[]>([]);
   const [loadingHolders, setLoadingHolders] = useState(false);
+  const [holderError, setHolderError] = useState<string | null>(null);
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(
     new Set()
   );
@@ -79,21 +90,31 @@ function SendTokens({ ual }: { ual: any }) {
 
   // Amount & sending
   const [amountPerRecipient, setAmountPerRecipient] = useState('');
+  const [totalAirdropAmount, setTotalAirdropAmount] = useState('');
   const [memo, setMemo] = useState('Airdrop from XPR NFT Creator');
   const [submitting, setSubmitting] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
 
-  const [modal, setModal] = useState<ModalState>({ title: '' });
+  // Transaction history
+  const [txHistory, setTxHistory] = useState<TxRecord[]>([]);
+
+  // Result state for modal
+  const [modalState, setModalState] = useState<{
+    title: string;
+    message?: string;
+    isSuccess?: boolean;
+    txRecords?: TxRecord[];
+  }>({ title: '' });
 
   const chainIdLogged =
     ual?.activeUser?.chainId ?? ual?.activeUser?.chain?.chainId;
   const chainId = chainsConfig[chainKey as string]?.chainId;
   const accountName = ual?.activeUser?.accountName;
 
-  // Fetch user's simpletoken balances
   async function fetchUserBalances() {
     if (!accountName) return;
     setLoadingBalances(true);
+    setBalanceError(null);
     try {
       const res = await fetch(`${RPC_URL}/v1/chain/get_table_rows`, {
         method: 'POST',
@@ -125,35 +146,43 @@ function SendTokens({ ual }: { ual: any }) {
     } catch (err) {
       console.error('Failed to fetch balances:', err);
       setUserTokens([]);
+      setBalanceError(
+        'Could not load your token balances. Please check your connection and retry.'
+      );
     }
     setLoadingBalances(false);
   }
 
-  // Fetch SimpleDEX tokens for holder-based recipients
   async function fetchDexTokens() {
     setLoadingDexTokens(true);
+    setDexTokenError(null);
     try {
       const data = await getSimpleDexTokens();
       setDexTokens(data);
     } catch {
       setDexTokens([]);
+      setDexTokenError(
+        'Unable to load SimpleDEX token list. Please try again.'
+      );
     }
     setLoadingDexTokens(false);
   }
 
-  // Fetch holders for a SimpleDEX token
   async function fetchHolders(token: SimpleDexToken) {
     setLoadingHolders(true);
     setDexHolders([]);
     setSelectedAccounts(new Set());
+    setHolderError(null);
     try {
       const data = await getTokenHolders(token.tokenId);
-      // Filter out the sender
       const filtered = data.filter((h) => h.account !== accountName);
       setDexHolders(filtered);
       setSelectedAccounts(new Set(filtered.map((h) => h.account)));
     } catch {
       setDexHolders([]);
+      setHolderError(
+        `Could not load holders for ${token.symbol}. Please try again.`
+      );
     }
     setLoadingHolders(false);
   }
@@ -164,7 +193,6 @@ function SendTokens({ ual }: { ual: any }) {
     }
   }, [chainId, chainIdLogged, accountName]);
 
-  // Parse manual recipients
   const manualRecipients = useMemo(() => {
     if (!manualInput.trim()) return [];
     return manualInput
@@ -173,13 +201,18 @@ function SendTokens({ ual }: { ual: any }) {
       .filter((s) => s.length > 0 && s.length <= 12);
   }, [manualInput]);
 
-  // Active recipients based on mode
   const activeRecipients = useMemo(() => {
     if (recipientMode === 'manual') return manualRecipients;
     return Array.from(selectedAccounts);
   }, [recipientMode, manualRecipients, selectedAccounts]);
 
-  // Filtered holders for search
+  // For proportional mode: map account -> their holder amount
+  const holderAmountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    dexHolders.forEach((h) => map.set(h.account, h.amount));
+    return map;
+  }, [dexHolders]);
+
   const filteredHolders = useMemo(
     () =>
       dexHolders.filter((h) =>
@@ -198,16 +231,49 @@ function SendTokens({ ual }: { ual: any }) {
     [dexTokens, dexTokenSearch]
   );
 
-  // Format quantity with correct precision
-  function formatQuantity(amount: string, token: UserToken): string {
-    const num = parseFloat(amount);
-    if (isNaN(num)) return `0.${'0'.repeat(token.precision)} ${token.symbol}`;
-    return `${num.toFixed(token.precision)} ${token.symbol}`;
+  function formatQuantity(amount: number, token: UserToken): string {
+    return `${amount.toFixed(token.precision)} ${token.symbol}`;
   }
 
-  // Calculate totals
-  const amountNum = parseFloat(amountPerRecipient) || 0;
-  const totalAmount = amountNum * activeRecipients.length;
+  // Calculate amounts per account
+  const amountMap = useMemo((): Map<string, number> => {
+    const result = new Map<string, number>();
+    if (!selectedToken || activeRecipients.length === 0) return result;
+
+    if (sendMode === 'equal') {
+      const amt = parseFloat(amountPerRecipient) || 0;
+      activeRecipients.forEach((acc) => result.set(acc, amt));
+    } else {
+      // Proportional: distribute totalAirdropAmount based on holder balances
+      const total = parseFloat(totalAirdropAmount) || 0;
+      const totalHoldings = activeRecipients.reduce(
+        (sum, acc) => sum + (holderAmountMap.get(acc) || 1),
+        0
+      );
+      activeRecipients.forEach((acc) => {
+        const share = (holderAmountMap.get(acc) || 1) / totalHoldings;
+        const amt = parseFloat(
+          (total * share).toFixed(selectedToken.precision)
+        );
+        result.set(acc, amt);
+      });
+    }
+    return result;
+  }, [
+    sendMode,
+    activeRecipients,
+    amountPerRecipient,
+    totalAirdropAmount,
+    holderAmountMap,
+    selectedToken,
+  ]);
+
+  const totalAmount = useMemo(() => {
+    let sum = 0;
+    amountMap.forEach((v) => (sum += v));
+    return sum;
+  }, [amountMap]);
+
   const hasEnoughBalance = selectedToken
     ? totalAmount <= selectedToken.amount
     : false;
@@ -222,37 +288,49 @@ function SendTokens({ ual }: { ual: any }) {
     });
   }
 
+  function exportCSV(records: TxRecord[]) {
+    const rows = ['account,amount,txId'];
+    records.forEach((rec) => {
+      rec.accounts.forEach((acc, i) => {
+        rows.push(`${acc},${rec.amounts[i] ?? ''},${rec.txId}`);
+      });
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `airdrop-${
+      selectedToken?.symbol ?? 'tokens'
+    }-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function handleSend() {
-    if (
-      !selectedToken ||
-      activeRecipients.length === 0 ||
-      !amountNum ||
-      !ual?.activeUser
-    )
+    if (!selectedToken || activeRecipients.length === 0 || !ual?.activeUser)
       return;
 
     setSubmitting(true);
-    const transactionsIDs: string[] = [];
+    const newTxRecords: TxRecord[] = [];
     const batchSize = 50;
     const totalBatches = Math.ceil(activeRecipients.length / batchSize);
     setBatchProgress({ current: 0, total: totalBatches });
 
     try {
       for (let i = 0; i < activeRecipients.length; i += batchSize) {
-        const batch = activeRecipients.slice(i, i + batchSize);
-        const actions = batch.map((account) => ({
+        const batchAccounts = activeRecipients.slice(i, i + batchSize);
+        const batchAmounts = batchAccounts.map(
+          (acc) => amountMap.get(acc) ?? 0
+        );
+
+        const actions = batchAccounts.map((account, idx) => ({
           account: 'simpletoken',
           name: 'transfer',
-          authorization: [
-            {
-              actor: accountName,
-              permission: 'active',
-            },
-          ],
+          authorization: [{ actor: accountName, permission: 'active' }],
           data: {
             from: accountName,
             to: account,
-            quantity: formatQuantity(amountPerRecipient, selectedToken),
+            quantity: formatQuantity(batchAmounts[idx], selectedToken),
             memo,
           },
         }));
@@ -262,40 +340,45 @@ function SendTokens({ ual }: { ual: any }) {
           { blocksBehind: 3, expireSeconds: 60 }
         );
 
-        if (result.transactionId) {
-          transactionsIDs.push(result.transactionId);
-        }
+        const txId = result.transactionId || '';
+        newTxRecords.push({
+          accounts: batchAccounts,
+          amounts: batchAmounts,
+          txId,
+        });
         setBatchProgress({
           current: Math.floor(i / batchSize) + 1,
           total: totalBatches,
         });
       }
 
-      modalRef.current?.openModal();
-      setModal({
-        title: 'Token Airdrop Successful!',
-        message: `Sent ${formatQuantity(
-          amountPerRecipient,
-          selectedToken
-        )} each to ${activeRecipients.length} accounts. Total: ${formatQuantity(
-          String(totalAmount),
-          selectedToken
-        )}`,
-        transactionsIDs,
+      setTxHistory((prev) => [...prev, ...newTxRecords]);
+      setModalState({
+        title: 'Airdrop Successful!',
+        message: `Sent ${selectedToken.symbol} to ${
+          activeRecipients.length
+        } accounts across ${
+          newTxRecords.length
+        } transaction(s). Total: ${formatQuantity(totalAmount, selectedToken)}`,
+        isSuccess: true,
+        txRecords: newTxRecords,
       });
-
-      // Refresh balances
+      modalRef.current?.openModal();
       fetchUserBalances();
     } catch (error: any) {
-      modalRef.current?.openModal();
-      const details = JSON.stringify(error, undefined, 2);
-      setModal({
-        title: 'Airdrop Error',
+      setModalState({
+        title: 'Airdrop Failed',
         message:
           error?.cause?.json?.error?.details?.[0]?.message ||
-          'Failed to send tokens',
-        details,
+          error?.message ||
+          'Something went wrong. Please try again.',
+        isSuccess: false,
+        txRecords: newTxRecords.length > 0 ? newTxRecords : undefined,
       });
+      modalRef.current?.openModal();
+      if (newTxRecords.length > 0) {
+        setTxHistory((prev) => [...prev, ...newTxRecords]);
+      }
     }
     setSubmitting(false);
     setBatchProgress({ current: 0, total: 0 });
@@ -304,6 +387,17 @@ function SendTokens({ ual }: { ual: any }) {
   function handleLogin() {
     ual?.showModal();
   }
+
+  // Confirmation dialog content
+  const confirmMessage = selectedToken
+    ? `You are about to send ${
+        sendMode === 'equal'
+          ? `${amountPerRecipient} ${selectedToken.symbol} each`
+          : `${formatQuantity(totalAmount, selectedToken)} proportionally`
+      } to ${activeRecipients.length} account${
+        activeRecipients.length !== 1 ? 's' : ''
+      }. Total: ${formatQuantity(totalAmount, selectedToken)}. Continue?`
+    : '';
 
   if (chainId && chainIdLogged && chainId === chainIdLogged) {
     return (
@@ -377,12 +471,42 @@ function SendTokens({ ual }: { ual: any }) {
             </button>
           </div>
 
+          {balanceError && (
+            <div
+              className="flex items-center gap-3 rounded-xl px-4 py-3 mb-4"
+              style={{
+                background: 'rgba(255,77,77,0.08)',
+                border: '1px solid rgba(255,77,77,0.25)',
+              }}
+            >
+              <WarningCircle
+                size={18}
+                style={{ color: '#ff4d4d', flexShrink: 0 }}
+              />
+              <span className="text-sm" style={{ color: '#ff4d4d' }}>
+                {balanceError}
+              </span>
+              <button
+                type="button"
+                onClick={fetchUserBalances}
+                className="ml-auto text-xs underline"
+                style={{ color: '#ff4d4d' }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           {loadingBalances ? (
             <div
               className="flex items-center justify-center gap-3 py-12"
               style={{ color: '#00ff88' }}
             >
-              <CircleNotch size={24} className="animate-spin" />
+              <div className="matrix-spinner">
+                <div className="matrix-spinner-outer" />
+                <div className="matrix-spinner-inner" />
+                <div className="matrix-spinner-dot" />
+              </div>
               <span className="text-sm">Loading your token balances...</span>
             </div>
           ) : userTokens.length === 0 ? (
@@ -544,7 +668,6 @@ function SendTokens({ ual }: { ual: any }) {
             {/* SimpleDEX mode */}
             {recipientMode === 'simpledex' && (
               <div className="flex flex-col gap-4">
-                {/* Token search */}
                 <div
                   className="flex items-center gap-3 rounded-xl px-4 py-3"
                   style={{
@@ -565,12 +688,39 @@ function SendTokens({ ual }: { ual: any }) {
                   />
                 </div>
 
+                {dexTokenError && (
+                  <div
+                    className="flex items-center gap-3 rounded-xl px-4 py-3"
+                    style={{
+                      background: 'rgba(255,77,77,0.08)',
+                      border: '1px solid rgba(255,77,77,0.25)',
+                    }}
+                  >
+                    <WarningCircle size={16} style={{ color: '#ff4d4d' }} />
+                    <span className="text-sm" style={{ color: '#ff4d4d' }}>
+                      {dexTokenError}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={fetchDexTokens}
+                      className="ml-auto text-xs underline"
+                      style={{ color: '#ff4d4d' }}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
                 {loadingDexTokens ? (
                   <div
                     className="flex items-center justify-center gap-3 py-8"
                     style={{ color: '#00ff88' }}
                   >
-                    <CircleNotch size={24} className="animate-spin" />
+                    <div className="matrix-spinner">
+                      <div className="matrix-spinner-outer" />
+                      <div className="matrix-spinner-inner" />
+                      <div className="matrix-spinner-dot" />
+                    </div>
                     <span className="text-sm">Loading SimpleDEX tokens...</span>
                   </div>
                 ) : (
@@ -669,7 +819,29 @@ function SendTokens({ ual }: { ual: any }) {
                       )}
                     </div>
 
-                    {/* Holder search */}
+                    {holderError && (
+                      <div
+                        className="flex items-center gap-3 rounded-xl px-4 py-3 mb-3"
+                        style={{
+                          background: 'rgba(255,77,77,0.08)',
+                          border: '1px solid rgba(255,77,77,0.25)',
+                        }}
+                      >
+                        <WarningCircle size={16} style={{ color: '#ff4d4d' }} />
+                        <span className="text-sm" style={{ color: '#ff4d4d' }}>
+                          {holderError}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => fetchHolders(selectedDexToken)}
+                          className="ml-auto text-xs underline"
+                          style={{ color: '#ff4d4d' }}
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    )}
+
                     <div
                       className="flex items-center gap-3 rounded-lg px-3 py-2 mb-3"
                       style={{
@@ -695,7 +867,11 @@ function SendTokens({ ual }: { ual: any }) {
                         className="flex items-center justify-center gap-3 py-8"
                         style={{ color: '#00ff88' }}
                       >
-                        <CircleNotch size={20} className="animate-spin" />
+                        <div className="matrix-spinner">
+                          <div className="matrix-spinner-outer" />
+                          <div className="matrix-spinner-inner" />
+                          <div className="matrix-spinner-dot" />
+                        </div>
                         <span className="text-sm">Fetching holders...</span>
                       </div>
                     ) : (
@@ -786,34 +962,126 @@ function SendTokens({ ual }: { ual: any }) {
               <span className="text-white">Amount & Send</span>
             </h2>
 
+            {/* Send mode toggle */}
+            <div className="flex gap-3 mb-6">
+              <button
+                type="button"
+                onClick={() => setSendMode('equal')}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
+                style={{
+                  background:
+                    sendMode === 'equal'
+                      ? 'rgba(0,255,136,0.1)'
+                      : 'rgba(255,255,255,0.03)',
+                  border:
+                    sendMode === 'equal'
+                      ? '1px solid rgba(0,255,136,0.4)'
+                      : '1px solid rgba(255,255,255,0.08)',
+                  color: sendMode === 'equal' ? '#00ff88' : '#888',
+                }}
+              >
+                <Equals size={18} />
+                Send Equal
+              </button>
+              <button
+                type="button"
+                onClick={() => setSendMode('proportional')}
+                disabled={
+                  recipientMode !== 'simpledex' || dexHolders.length === 0
+                }
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
+                title={
+                  recipientMode !== 'simpledex'
+                    ? 'Switch to SimpleDEX Holders mode to use proportional sending'
+                    : undefined
+                }
+                style={{
+                  background:
+                    sendMode === 'proportional'
+                      ? 'rgba(0,255,136,0.1)'
+                      : 'rgba(255,255,255,0.03)',
+                  border:
+                    sendMode === 'proportional'
+                      ? '1px solid rgba(0,255,136,0.4)'
+                      : '1px solid rgba(255,255,255,0.08)',
+                  color:
+                    sendMode === 'proportional'
+                      ? '#00ff88'
+                      : recipientMode !== 'simpledex' || dexHolders.length === 0
+                      ? '#444'
+                      : '#888',
+                  cursor:
+                    recipientMode !== 'simpledex' || dexHolders.length === 0
+                      ? 'not-allowed'
+                      : 'pointer',
+                }}
+              >
+                <Scales size={18} />
+                Send Proportional
+              </button>
+              {sendMode === 'proportional' && (
+                <span className="text-xs text-neutral-500 self-center">
+                  Distributes based on each holder&apos;s token balance share
+                </span>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">
-                  Amount per recipient
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  min="0"
-                  value={amountPerRecipient}
-                  onChange={(e) => setAmountPerRecipient(e.target.value)}
-                  placeholder={`e.g. 1000`}
-                  className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none font-mono"
-                  style={{
-                    background: 'rgba(0,0,0,0.5)',
-                    border: '1px solid rgba(0,255,136,0.2)',
-                  }}
-                />
-                {amountNum > 0 && selectedToken && (
+              {sendMode === 'equal' ? (
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-white">
+                    Amount per recipient
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    value={amountPerRecipient}
+                    onChange={(e) => setAmountPerRecipient(e.target.value)}
+                    placeholder="e.g. 1000"
+                    className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none font-mono"
+                    style={{
+                      background: 'rgba(0,0,0,0.5)',
+                      border: '1px solid rgba(0,255,136,0.2)',
+                    }}
+                  />
+                  {parseFloat(amountPerRecipient) > 0 && (
+                    <div className="text-xs text-neutral-500">
+                      Will send{' '}
+                      <span className="font-mono" style={{ color: '#00ff88' }}>
+                        {formatQuantity(
+                          parseFloat(amountPerRecipient),
+                          selectedToken
+                        )}
+                      </span>{' '}
+                      per account
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-white">
+                    Total amount to distribute
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    value={totalAirdropAmount}
+                    onChange={(e) => setTotalAirdropAmount(e.target.value)}
+                    placeholder="e.g. 100000"
+                    className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none font-mono"
+                    style={{
+                      background: 'rgba(0,0,0,0.5)',
+                      border: '1px solid rgba(0,255,136,0.2)',
+                    }}
+                  />
                   <div className="text-xs text-neutral-500">
-                    Will send{' '}
-                    <span className="font-mono" style={{ color: '#00ff88' }}>
-                      {formatQuantity(amountPerRecipient, selectedToken)}
-                    </span>{' '}
-                    per account
+                    Split proportionally by holder balance ratio
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-white">Memo</label>
                 <input
@@ -846,13 +1114,9 @@ function SendTokens({ ual }: { ual: any }) {
                   </div>
                 </div>
                 <div>
-                  <div className="text-neutral-500 text-xs mb-1">
-                    Per Recipient
-                  </div>
-                  <div className="font-semibold text-white font-mono">
-                    {amountNum > 0
-                      ? formatQuantity(amountPerRecipient, selectedToken)
-                      : '—'}
+                  <div className="text-neutral-500 text-xs mb-1">Mode</div>
+                  <div className="font-semibold text-white capitalize">
+                    {sendMode}
                   </div>
                 </div>
                 <div>
@@ -871,8 +1135,8 @@ function SendTokens({ ual }: { ual: any }) {
                     className="font-semibold font-mono"
                     style={{ color: hasEnoughBalance ? '#00ff88' : '#ff4d4d' }}
                   >
-                    {amountNum > 0
-                      ? formatQuantity(String(totalAmount), selectedToken)
+                    {totalAmount > 0
+                      ? formatQuantity(totalAmount, selectedToken)
                       : '—'}
                   </div>
                 </div>
@@ -895,7 +1159,7 @@ function SendTokens({ ual }: { ual: any }) {
                   </div>
                 </div>
               </div>
-              {amountNum > 0 && !hasEnoughBalance && (
+              {totalAmount > 0 && !hasEnoughBalance && (
                 <div
                   className="mt-3 text-xs font-medium px-3 py-2 rounded-lg"
                   style={{
@@ -905,7 +1169,7 @@ function SendTokens({ ual }: { ual: any }) {
                   }}
                 >
                   Insufficient balance. You need{' '}
-                  {formatQuantity(String(totalAmount), selectedToken)} but have{' '}
+                  {formatQuantity(totalAmount, selectedToken)} but have{' '}
                   {selectedToken.balance}
                 </div>
               )}
@@ -915,27 +1179,27 @@ function SendTokens({ ual }: { ual: any }) {
             <button
               type="button"
               className="px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-200"
-              disabled={!amountNum || !hasEnoughBalance || submitting}
-              onClick={handleSend}
+              disabled={totalAmount <= 0 || !hasEnoughBalance || submitting}
+              onClick={() => confirmRef.current?.openModal()}
               style={{
                 background:
-                  !amountNum || !hasEnoughBalance || submitting
+                  totalAmount <= 0 || !hasEnoughBalance || submitting
                     ? 'rgba(0,255,136,0.05)'
                     : 'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,200,100,0.1))',
                 border:
-                  !amountNum || !hasEnoughBalance || submitting
+                  totalAmount <= 0 || !hasEnoughBalance || submitting
                     ? '1px solid rgba(0,255,136,0.1)'
                     : '1px solid rgba(0,255,136,0.4)',
                 color:
-                  !amountNum || !hasEnoughBalance || submitting
+                  totalAmount <= 0 || !hasEnoughBalance || submitting
                     ? 'rgba(0,255,136,0.3)'
                     : '#00ff88',
                 boxShadow:
-                  !amountNum || !hasEnoughBalance || submitting
+                  totalAmount <= 0 || !hasEnoughBalance || submitting
                     ? 'none'
                     : '0 0 20px rgba(0,255,136,0.15)',
                 cursor:
-                  !amountNum || !hasEnoughBalance || submitting
+                  totalAmount <= 0 || !hasEnoughBalance || submitting
                     ? 'not-allowed'
                     : 'pointer',
               }}
@@ -956,30 +1220,195 @@ function SendTokens({ ual }: { ual: any }) {
           </div>
         )}
 
-        <Modal ref={modalRef} title={modal.title}>
-          <p className="body-2 mt-2 text-neutral-300">{modal.message}</p>
-          {modal.details && (
-            <pre
-              className="mt-4 p-3 rounded-lg text-xs font-mono overflow-auto max-h-40 text-red-400"
+        {/* Transaction History */}
+        {txHistory.length > 0 && (
+          <div
+            className="rounded-2xl p-4 sm:p-6"
+            style={{
+              background: 'rgba(0,0,0,0.6)',
+              border: '1px solid rgba(0,255,136,0.15)',
+              boxShadow: '0 0 30px rgba(0,255,136,0.05)',
+            }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="headline-3 flex items-center gap-3">
+                <span
+                  style={{
+                    color: '#00ff88',
+                    textShadow: '0 0 10px rgba(0,255,136,0.6)',
+                  }}
+                >
+                  ✓
+                </span>
+                <span className="text-white">Transaction History</span>
+              </h2>
+              <button
+                type="button"
+                onClick={() => exportCSV(txHistory)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={{
+                  background: 'rgba(0,255,136,0.08)',
+                  border: '1px solid rgba(0,255,136,0.25)',
+                  color: '#00ff88',
+                }}
+              >
+                <DownloadSimple size={16} />
+                Export CSV
+              </button>
+            </div>
+
+            <div
+              className="rounded-xl overflow-hidden"
               style={{
-                background: 'rgba(255,0,0,0.05)',
-                border: '1px solid rgba(255,0,0,0.1)',
+                background: 'rgba(0,0,0,0.3)',
+                border: '1px solid rgba(0,255,136,0.08)',
               }}
             >
-              {modal.details}
-            </pre>
-          )}
-          {modal.transactionsIDs?.map((tx) => (
-            <Link
-              className="flex py-2 underline underline-offset-2"
-              key={tx}
-              href={`https://explorer.xprnetwork.org/transaction/${tx}`}
-              target="_blank"
-              style={{ color: '#00ff88' }}
+              <div
+                className="grid grid-cols-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider"
+                style={{
+                  background: 'rgba(0,0,0,0.6)',
+                  borderBottom: '1px solid rgba(0,255,136,0.1)',
+                  color: 'rgba(0,255,136,0.5)',
+                }}
+              >
+                <div>Accounts</div>
+                <div className="text-center">Amounts</div>
+                <div className="text-right">Transaction</div>
+              </div>
+              {txHistory.map((rec, i) => (
+                <div
+                  key={rec.txId + i}
+                  className="grid grid-cols-3 px-4 py-3 text-xs"
+                  style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+                >
+                  <div className="font-mono text-neutral-400">
+                    {rec.accounts.length} accounts
+                  </div>
+                  <div
+                    className="text-center font-mono"
+                    style={{ color: '#00ff88' }}
+                  >
+                    {rec.amounts.reduce((a, b) => a + b, 0).toFixed(2)}{' '}
+                    {selectedToken?.symbol}
+                  </div>
+                  <div className="text-right">
+                    {rec.txId ? (
+                      <Link
+                        href={`https://explorer.xprnetwork.org/transaction/${rec.txId}`}
+                        target="_blank"
+                        className="underline underline-offset-2 font-mono"
+                        style={{ color: '#00ff88', fontSize: '0.7rem' }}
+                      >
+                        {rec.txId.slice(0, 16)}...
+                      </Link>
+                    ) : (
+                      <span className="text-neutral-600">—</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Modal */}
+        <Modal ref={confirmRef} title="Confirm Airdrop">
+          <p className="body-2 mt-3 text-neutral-300">{confirmMessage}</p>
+          <div className="flex gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                confirmRef.current?.closeModal();
+                handleSend();
+              }}
+              className="flex-1 py-3 rounded-xl font-bold text-sm transition-all"
+              style={{
+                background:
+                  'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,200,100,0.1))',
+                border: '1px solid rgba(0,255,136,0.4)',
+                color: '#00ff88',
+              }}
             >
-              <span className="break-all font-mono text-sm">{tx}</span>
-            </Link>
-          ))}
+              <span className="flex items-center justify-center gap-2">
+                <Check size={16} />
+                Yes, Send
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => confirmRef.current?.closeModal()}
+              className="flex-1 py-3 rounded-xl font-bold text-sm transition-all"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#aaa',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </Modal>
+
+        {/* Result Modal */}
+        <Modal ref={modalRef} title={modalState.title}>
+          {modalState.isSuccess ? (
+            <div className="flex items-center gap-2 mt-2 mb-3">
+              <Check size={20} style={{ color: '#00ff88' }} />
+              <span
+                className="text-sm font-medium"
+                style={{ color: '#00ff88' }}
+              >
+                Success
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mt-2 mb-3">
+              <WarningCircle size={20} style={{ color: '#ff4d4d' }} />
+              <span
+                className="text-sm font-medium"
+                style={{ color: '#ff4d4d' }}
+              >
+                Error
+              </span>
+            </div>
+          )}
+          <p className="body-2 text-neutral-300">{modalState.message}</p>
+          {modalState.txRecords && modalState.txRecords.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider">
+                  Transactions ({modalState.txRecords.length})
+                </p>
+                <button
+                  type="button"
+                  onClick={() => exportCSV(modalState.txRecords!)}
+                  className="flex items-center gap-1 px-3 py-1 rounded-lg text-xs"
+                  style={{
+                    background: 'rgba(0,255,136,0.08)',
+                    border: '1px solid rgba(0,255,136,0.2)',
+                    color: '#00ff88',
+                  }}
+                >
+                  <DownloadSimple size={12} />
+                  Export CSV
+                </button>
+              </div>
+              {modalState.txRecords.map((rec) => (
+                <Link
+                  className="flex py-2 underline underline-offset-2"
+                  key={rec.txId}
+                  href={`https://explorer.xprnetwork.org/transaction/${rec.txId}`}
+                  target="_blank"
+                  style={{ color: '#00ff88' }}
+                >
+                  <span className="break-all font-mono text-sm">
+                    {rec.txId}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </Modal>
       </div>
     );
