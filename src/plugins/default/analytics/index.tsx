@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import { Input } from '@components/Input';
 import { appName } from '@configs/globalsConfig';
-import chainsConfig from '@configs/chainsConfig';
+import * as chainsConfig from '@configs/chainsConfig';
 
 import { pluginInfo } from './config';
 

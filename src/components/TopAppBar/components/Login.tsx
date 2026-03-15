@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { getAccount } from '@services/account/getAccount';
 import { getChainKeyByChainId } from '@utils/getChainKeyByChainId';
 
-import chainsConfig from '@configs/chainsConfig';
+import * as chainsConfig from '@configs/chainsConfig';
 
 interface LoginComponentProps {
   chainKey: string;

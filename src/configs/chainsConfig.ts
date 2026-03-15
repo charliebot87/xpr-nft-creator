@@ -1,10 +1,11 @@
+import { WebAuth } from '@proton/ual-webauth';
 import { Anchor } from 'ual-anchor';
 
-const chainsConfig = {
+module.exports = {
   xpr: {
     name: 'XPR Network',
     imageUrl: '/xpr-icon-white.png',
-    authenticators: [Anchor],
+    authenticators: [WebAuth, Anchor],
     aaEndpoint: process.env.NEXT_PUBLIC_XPR_MAINNET_AA_ENDPOINT,
     chainId: process.env.NEXT_PUBLIC_XPR_MAINNET_CHAIN_ID,
     protocol: process.env.NEXT_PUBLIC_XPR_MAINNET_PROTOCOL,
@@ -12,5 +13,3 @@ const chainsConfig = {
     port: process.env.NEXT_PUBLIC_XPR_MAINNET_PORT,
   },
 };
-
-export default chainsConfig;

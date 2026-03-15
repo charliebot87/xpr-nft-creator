@@ -11,7 +11,7 @@ import { Modal } from '@components/Modal';
 import { Input } from '@components/Input';
 import { Select } from '@components/Select';
 
-import chainsConfig from '@configs/chainsConfig';
+import * as chainsConfig from '@configs/chainsConfig';
 import { appName } from '@configs/globalsConfig';
 
 import { pluginInfo } from './config';

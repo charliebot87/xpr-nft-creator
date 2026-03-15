@@ -1,5 +1,5 @@
 import { appName } from '@configs/globalsConfig';
-import chainsConfig from '@configs/chainsConfig';
+import * as chainsConfig from '@configs/chainsConfig';
 import { blockchains } from '@utils/blockchains';
 
 function buildAuthenticators() {

@@ -1,5 +1,5 @@
 import { JsonRpc } from 'eosjs';
-import chainsConfig from '@configs/chainsConfig';
+import * as chainsConfig from '@configs/chainsConfig';
 
 interface AccountNameProps {
   accountName: string;

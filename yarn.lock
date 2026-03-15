@@ -353,10 +353,10 @@
     uint8arrays "^4.0.2"
     varint "^6.0.0"
 
-"@next/env@13.2.3":
-  version "13.2.3"
-  resolved "https://registry.npmjs.org/@next/env/-/env-13.2.3.tgz"
-  integrity sha512-FN50r/E+b8wuqyRjmGaqvqNDuWBWYWQiigfZ50KnSFH0f+AMQQyaZl+Zm2+CIpKk0fL9QxhLxOpTVA3xFHgFow==
+"@next/env@13.0.3":
+  version "13.0.3"
+  resolved "https://registry.npmjs.org/@next/env/-/env-13.0.3.tgz"
+  integrity sha512-/4WzeG61Ot/PxsghXkSqQJ6UohFfwXoZ3dtsypmR9EBP+OIax9JRq0trq8Z/LCT9Aq4JbihVkaazRWguORjTAw==
 
 "@next/eslint-plugin-next@13.0.3":
   version "13.0.3"
@@ -365,10 +365,10 @@
   dependencies:
     glob "7.1.7"
 
-"@next/swc-darwin-arm64@13.2.3":
-  version "13.2.3"
-  resolved "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-13.2.3.tgz"
-  integrity sha512-TXOubiFdLpMfMtaRu1K5d1I9ipKbW5iS2BNbu8zJhoqrhk3Kp7aRKTxqFfWrbliAHhWVE/3fQZUYZOWSXVQi1w==
+"@next/swc-darwin-arm64@13.0.3":
+  version "13.0.3"
+  resolved "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-13.0.3.tgz"
+  integrity sha512-wV6j6SZ1bc/YHOLCLk9JVqaZTCCey6HBV7inl2DriHsHqIcO6F3+QiYf0KXwRP9BE0GSZZrYd5mZQm2JPTHdJA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -484,13 +484,13 @@
   dependencies:
     "@greymass/eosio" "^0.6.1"
 
-"@proton/ual-webauth@^0.1.18":
-  version "0.1.18"
-  resolved "https://registry.npmjs.org/@proton/ual-webauth/-/ual-webauth-0.1.18.tgz"
-  integrity sha512-JgGj41TG9P4RaCMf9PrbX2npsEQnkQWgRm3gJjmKl0rYIoSFNWmsFIcRFvqC5fIgIh97fLGqwfQT318c4VWmWg==
+"@proton/ual-webauth@^0.1.17":
+  version "0.1.17"
+  resolved "https://registry.npmjs.org/@proton/ual-webauth/-/ual-webauth-0.1.17.tgz"
+  integrity sha512-N7mdo1p2ASbBxB0hzjVC1uIAuUBYbdTRR+kFPzRFegIhx9fXjOkoJh3liVSNz00RPnQG+oRqoB1blOinlahDkw==
   dependencies:
     "@greymass/eosio" "^0.6.0"
-    "@proton/web-sdk" "^4.2.14"
+    "@proton/web-sdk" "^4.2.12"
     bufferutil "^4.0.7"
     cache-base "4.0.2"
     elliptic "6.5.4"
@@ -501,7 +501,7 @@
     universal-authenticator-library "0.3.0"
     utf-8-validate "^5.0.10"
 
-"@proton/web-sdk@^4.2.14", "@proton/web-sdk@^4.2.20":
+"@proton/web-sdk@^4.2.12", "@proton/web-sdk@^4.2.20":
   version "4.2.20"
   resolved "https://registry.npmjs.org/@proton/web-sdk/-/web-sdk-4.2.20.tgz"
   integrity sha512-ZVNPr6y2IB2KjWQ5W/0Y9zDJzvt09F8L2NlTF5ZuR30WrsKTcy310EhfCxQUdbv8TXHAEMpQcsTNVbFs6nULNA==
@@ -521,10 +521,10 @@
   resolved "https://registry.npmjs.org/@sellside/emitter/-/emitter-1.2.1.tgz"
   integrity sha512-P1rUad4vDnp4d5HB7NEJ/MDf4zg3pM2Q8ZXJ2xgGkGo5yckyDn56YPAvUGH+1VsOud5dbli8MZu14j/EcNZCGw==
 
-"@swc/helpers@0.4.14":
-  version "0.4.14"
-  resolved "https://registry.npmjs.org/@swc/helpers/-/helpers-0.4.14.tgz"
-  integrity sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==
+"@swc/helpers@0.4.11":
+  version "0.4.11"
+  resolved "https://registry.npmjs.org/@swc/helpers/-/helpers-0.4.11.tgz"
+  integrity sha512-rEUrBSGIoSFuYxwBYtlUFMlE2CwGhmW+w9355/5oduSw8e5h2+Tj4UrAGNNgP9915++wj5vkQo0UuOBqOAq4nw==
   dependencies:
     tslib "^2.4.0"
 
@@ -2539,30 +2539,31 @@ natural-compare@^1.4.0:
   resolved "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-next@^13.2.3:
-  version "13.2.3"
-  resolved "https://registry.npmjs.org/next/-/next-13.2.3.tgz"
-  integrity sha512-nKFJC6upCPN7DWRx4+0S/1PIOT7vNlCT157w9AzbXEgKy6zkiPKEt5YyRUsRZkmpEqBVrGgOqNfwecTociyg+w==
+next@^13.0.3:
+  version "13.0.3"
+  resolved "https://registry.npmjs.org/next/-/next-13.0.3.tgz"
+  integrity sha512-rFQeepcenRxKzeKlh1CsmEnxsJwhIERtbUjmYnKZyDInZsU06lvaGw5DT44rlNp1Rv2MT/e9vffZ8vK+ytwXHA==
   dependencies:
-    "@next/env" "13.2.3"
-    "@swc/helpers" "0.4.14"
+    "@next/env" "13.0.3"
+    "@swc/helpers" "0.4.11"
     caniuse-lite "^1.0.30001406"
     postcss "8.4.14"
-    styled-jsx "5.1.1"
+    styled-jsx "5.1.0"
+    use-sync-external-store "1.2.0"
   optionalDependencies:
-    "@next/swc-android-arm-eabi" "13.2.3"
-    "@next/swc-android-arm64" "13.2.3"
-    "@next/swc-darwin-arm64" "13.2.3"
-    "@next/swc-darwin-x64" "13.2.3"
-    "@next/swc-freebsd-x64" "13.2.3"
-    "@next/swc-linux-arm-gnueabihf" "13.2.3"
-    "@next/swc-linux-arm64-gnu" "13.2.3"
-    "@next/swc-linux-arm64-musl" "13.2.3"
-    "@next/swc-linux-x64-gnu" "13.2.3"
-    "@next/swc-linux-x64-musl" "13.2.3"
-    "@next/swc-win32-arm64-msvc" "13.2.3"
-    "@next/swc-win32-ia32-msvc" "13.2.3"
-    "@next/swc-win32-x64-msvc" "13.2.3"
+    "@next/swc-android-arm-eabi" "13.0.3"
+    "@next/swc-android-arm64" "13.0.3"
+    "@next/swc-darwin-arm64" "13.0.3"
+    "@next/swc-darwin-x64" "13.0.3"
+    "@next/swc-freebsd-x64" "13.0.3"
+    "@next/swc-linux-arm-gnueabihf" "13.0.3"
+    "@next/swc-linux-arm64-gnu" "13.0.3"
+    "@next/swc-linux-arm64-musl" "13.0.3"
+    "@next/swc-linux-x64-gnu" "13.0.3"
+    "@next/swc-linux-x64-musl" "13.0.3"
+    "@next/swc-win32-arm64-msvc" "13.0.3"
+    "@next/swc-win32-ia32-msvc" "13.0.3"
+    "@next/swc-win32-x64-msvc" "13.0.3"
 
 node-abi@^3.3.0:
   version "3.33.0"
@@ -3416,10 +3417,10 @@ strip-json-comments@~2.0.1:
     stylis-rule-sheet "^0.0.10"
     supports-color "^5.5.0"
 
-styled-jsx@5.1.1:
-  version "5.1.1"
-  resolved "https://registry.npmjs.org/styled-jsx/-/styled-jsx-5.1.1.tgz"
-  integrity sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==
+styled-jsx@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/styled-jsx/-/styled-jsx-5.1.0.tgz"
+  integrity sha512-/iHaRJt9U7T+5tp6TRelLnqBqiaIT0HsO0+vgyj8hK2KUk7aejFqRrumqPUlAqDwAj8IbS/1hk3IhBAAK/FCUQ==
   dependencies:
     client-only "0.0.1"
 
@@ -3711,6 +3712,11 @@ use-memo-one@^1.1.1:
   version "1.1.3"
   resolved "https://registry.npmjs.org/use-memo-one/-/use-memo-one-1.1.3.tgz"
   integrity sha512-g66/K7ZQGYrI6dy8GLpVcMsBp4s17xNkYJVSMvTEevGy3nDxHOfE6z8BVE22+5G5x7t3+bhzrlTDB7ObrEE0cQ==
+
+use-sync-external-store@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz"
+  integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
 
 utf-8-validate@^5.0.10, utf-8-validate@^5.0.2:
   version "5.0.10"

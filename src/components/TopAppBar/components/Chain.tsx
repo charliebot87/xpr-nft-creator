@@ -4,7 +4,7 @@ import { withUAL } from 'ual-reactjs-renderer';
 import { Menu } from '@headlessui/react';
 import { CaretDown } from 'phosphor-react';
 
-import chainsConfig from '@configs/chainsConfig';
+import * as chainsConfig from '@configs/chainsConfig';
 
 import { ChainLink } from './ChainLink';
 
