@@ -132,6 +132,11 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
+"@bloks/constants@28.11.0":
+  version "28.11.0"
+  resolved "https://registry.npmjs.org/@bloks/constants/-/constants-28.11.0.tgz"
+  integrity sha512-WMhvsIBane1y1RNvytG7ARKtQEdzAO7FZyR0l73KNczwKWt5G1WdhQyjEsNS0R+wbUt1yhqncYZocQKs5nyuaw==
+
 "@bloks/constants@28.11.4":
   version "28.11.4"
   resolved "https://registry.npmjs.org/@bloks/constants/-/constants-28.11.4.tgz"
@@ -413,12 +418,30 @@
     tslib "^2.6.2"
     webcrypto-core "^1.8.0"
 
-"@proton/browser-transport@^4.4.1":
+"@proton/browser-transport@^4.2.19":
   version "4.4.1"
   resolved "https://registry.npmjs.org/@proton/browser-transport/-/browser-transport-4.4.1.tgz"
   integrity sha512-L5hgkCslij5w2OAHqbhTrU2JNkpLBV5/jPbDOc6cHKM3fLLK+r6eehqA7bzSMhmHTW4ZaqhWojMFpXu+cX7aEA==
   dependencies:
     "@proton/link" "^4.4.1"
+
+"@proton/js@^28.1.2":
+  version "28.1.2"
+  resolved "https://registry.npmjs.org/@proton/js/-/js-28.1.2.tgz"
+  integrity sha512-ou5XZhkuI5eLh+exeFytMF4h+smoyvHt605fs/sEzQyRU0s6YsOdGZThUc1UDprIMS+pz+CfTz1zxy+SPa+YyA==
+  dependencies:
+    "@bloks/constants" "28.11.0"
+    "@peculiar/webcrypto" "^1.4.0"
+    abortcontroller-polyfill "^1.7.3"
+    base64url "^3.0.1"
+    bn.js "^5.2.1"
+    cross-fetch "^3.1.4"
+    elliptic "^6.5.4"
+    event-target-shim "^6.0.2"
+    fast-text-encoding "^1.0.3"
+    hash.js "1.1.7"
+    pako "2.0.3"
+    ripemd-ts "0.0.2"
 
 "@proton/js@^29.1.0":
   version "29.1.0"
@@ -438,7 +461,7 @@
     pako "2.0.3"
     ripemd-ts "0.0.2"
 
-"@proton/link@^4.4.1", "@proton/link@^4.4.2":
+"@proton/link@^4.2.18", "@proton/link@^4.4.1":
   version "4.4.2"
   resolved "https://registry.npmjs.org/@proton/link/-/link-4.4.2.tgz"
   integrity sha512-IjCahHdUrPDc7PxpgkFkRRoBYFg2OouLJea5qvd5UnpaMy0hwQ/oMPsM5GyR98T/1vHJ0vo5QGUtUf0K65B5kg==
@@ -478,15 +501,15 @@
     universal-authenticator-library "0.3.0"
     utf-8-validate "^5.0.10"
 
-"@proton/web-sdk@^4.2.15":
-  version "4.4.2"
-  resolved "https://registry.npmjs.org/@proton/web-sdk/-/web-sdk-4.4.2.tgz"
-  integrity sha512-v/+IqKWjhlo47inwLT8o6riSxUOTCD9NOV378Je/xMTWL+xov1kEuhlWl4zGrSKX0ih+nAvOI6LzP2azC5Rzyw==
+"@proton/web-sdk@^4.2.15", "@proton/web-sdk@^4.2.20":
+  version "4.2.20"
+  resolved "https://registry.npmjs.org/@proton/web-sdk/-/web-sdk-4.2.20.tgz"
+  integrity sha512-ZVNPr6y2IB2KjWQ5W/0Y9zDJzvt09F8L2NlTF5ZuR30WrsKTcy310EhfCxQUdbv8TXHAEMpQcsTNVbFs6nULNA==
   dependencies:
     "@greymass/eosio" "^0.6.1"
-    "@proton/browser-transport" "^4.4.1"
-    "@proton/js" "^29.1.0"
-    "@proton/link" "^4.4.2"
+    "@proton/browser-transport" "^4.2.19"
+    "@proton/js" "^28.1.2"
+    "@proton/link" "^4.2.18"
 
 "@rushstack/eslint-patch@^1.1.3":
   version "1.2.0"
