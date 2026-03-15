@@ -8,14 +8,10 @@ import {
   DiceFive,
   CircleNotch,
   Stack,
-  Layout,
-  CubeFocus,
-  PaperPlaneTilt,
+  HardDrives,
+  Cube,
+  Parachute,
   ArrowRight,
-  NumberCircleOne,
-  NumberCircleTwo,
-  NumberCircleThree,
-  NumberCircleFour,
 } from 'phosphor-react';
 
 import { useForm, Controller } from 'react-hook-form';
@@ -450,6 +446,100 @@ function Airdrop({ ual }: AirdropProps) {
           <h1 className="headline-1">{pluginInfo.name}</h1>
           <span className="body-1">Bulk send NFTs with filters.</span>
         </div>
+
+        {/* Guided flow - show when no collection is pre-selected */}
+        {!collection && (
+          <div
+            className="rounded-2xl p-6 sm:p-8"
+            style={{
+              background: 'rgba(0,0,0,0.5)',
+              border: '1px solid rgba(0,255,136,0.12)',
+            }}
+          >
+            <h2 className="text-lg font-bold text-white mb-1">
+              How Airdrops Work
+            </h2>
+            <p className="text-sm text-neutral-500 mb-6">
+              Follow these steps to airdrop NFTs to your community
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  step: '1',
+                  icon: Stack,
+                  title: 'Create a Collection',
+                  desc: 'Set up your NFT collection',
+                  href: `/${chainKey}/collection/new`,
+                },
+                {
+                  step: '2',
+                  icon: Layout,
+                  title: 'Create Templates',
+                  desc: 'Define your NFT templates',
+                  href: null,
+                },
+                {
+                  step: '3',
+                  icon: CubeFocus,
+                  title: 'Mint NFTs',
+                  desc: 'Mint assets from templates',
+                  href: null,
+                },
+                {
+                  step: '4',
+                  icon: PaperPlaneTilt,
+                  title: 'Airdrop!',
+                  desc: 'Send NFTs to recipients below',
+                  href: null,
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                const content = (
+                  <div
+                    key={item.step}
+                    className="rounded-xl p-4 transition-all duration-200 group"
+                    style={{
+                      background: 'rgba(0,255,136,0.03)',
+                      border: '1px solid rgba(0,255,136,0.08)',
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <span
+                        className="text-2xl font-bold font-mono"
+                        style={{
+                          color: '#00ff88',
+                          textShadow: '0 0 10px rgba(0,255,136,0.4)',
+                        }}
+                      >
+                        {item.step}
+                      </span>
+                      <Icon size={20} style={{ color: '#00ff88' }} />
+                    </div>
+                    <h3 className="text-sm font-bold text-white mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-neutral-500">{item.desc}</p>
+                    {item.href && (
+                      <div
+                        className="flex items-center gap-1 text-xs mt-2 font-semibold"
+                        style={{ color: '#00ff88' }}
+                      >
+                        Go <ArrowRight size={12} />
+                      </div>
+                    )}
+                  </div>
+                );
+                return item.href ? (
+                  <Link key={item.step} href={item.href}>
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={item.step}>{content}</div>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {hasRemainingTransactions ? (
           <>
             {transactionBatch?.length > 0 && actions.length === 0 ? (

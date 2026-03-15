@@ -45,8 +45,7 @@ const actionCards = [
     title: 'Airdrop NFTs',
     description:
       'Bulk send NFTs to holders of a collection or specific templates.',
-    href: (chainKey: string) =>
-      `/${chainKey}/plugins/airdrop?type=default`,
+    href: (chainKey: string) => `/${chainKey}/plugins/airdrop?type=default`,
     icon: PaperPlaneTilt,
     gradient: 'from-cyan-500/20 to-blue-500/5',
   },
