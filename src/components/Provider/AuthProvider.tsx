@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async () => {
+    console.log('[AuthProvider] login triggered');
     setAuthError('');
     const { user, error } = await ProtonSDK.login();
     if (error || !user) {

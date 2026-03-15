@@ -35,7 +35,10 @@ export function withUAL<P extends { ual?: any }>(
       activeUser: currentUser
         ? createActiveUser(currentUser.actor, currentUser.permission)
         : null,
-      showModal: login,
+      showModal: () => {
+        console.log('[UAL-compat] showModal called');
+        login();
+      },
       logout: logout,
     };
 

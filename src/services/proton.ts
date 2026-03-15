@@ -33,6 +33,7 @@ class ProtonSDKService {
     restoreSession: boolean;
   }): Promise<void> => {
     // Dynamic import to avoid SSR issues with ESM
+    console.log('[ProtonSDK] importing @proton/web-sdk...');
     const { default: ConnectWallet } = await import('@proton/web-sdk');
 
     const { link, session } = await ConnectWallet({
@@ -69,6 +70,7 @@ class ProtonSDKService {
   };
 
   login = async (): Promise<WalletResponse> => {
+    console.log('[ProtonSDK] login called');
     try {
       await this.connect({ restoreSession: false });
       if (!this.session || !this.auth || !this.accountData) {
