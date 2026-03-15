@@ -3,7 +3,7 @@ import { Anchor } from 'ual-anchor';
 module.exports = {
   xpr: {
     name: 'XPR Network',
-    imageUrl: '/xpr-icon.png',
+    imageUrl: '/xpr-icon-white.png',
     authenticators: [Anchor],
     aaEndpoint: process.env.NEXT_PUBLIC_XPR_MAINNET_AA_ENDPOINT,
     chainId: process.env.NEXT_PUBLIC_XPR_MAINNET_CHAIN_ID,
