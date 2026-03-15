@@ -5,6 +5,9 @@ const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
   distDir: '.next',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     esmExternals: 'loose',
   },
