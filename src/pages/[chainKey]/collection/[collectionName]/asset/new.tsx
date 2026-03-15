@@ -2,7 +2,7 @@ import { useState, useEffect, Fragment, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { Disclosure } from '@headlessui/react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CaretDown, Check, CircleNotch, TrashSimple } from 'phosphor-react';

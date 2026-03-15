@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { Disclosure } from '@headlessui/react';
 import { CircleNotch } from 'phosphor-react';
 

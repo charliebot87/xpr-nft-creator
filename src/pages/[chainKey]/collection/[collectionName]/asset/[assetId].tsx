@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Tab } from '@headlessui/react';
 import Link from 'next/link';
 import Head from 'next/head';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { GetServerSideProps } from 'next';
 
 import { ipfsEndpoint, appName } from '@configs/globalsConfig';

@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import { UploadSimple, CircleNotch } from 'phosphor-react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { GetServerSideProps } from 'next';
 import { Tab, Disclosure } from '@headlessui/react';
 import { useRouter } from 'next/router';

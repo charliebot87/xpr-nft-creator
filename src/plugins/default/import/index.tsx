@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Disclosure } from '@headlessui/react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { useRouter } from 'next/router';
 import Papa from 'papaparse';
 import Link from 'next/link';

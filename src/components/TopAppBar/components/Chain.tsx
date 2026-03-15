@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { Menu } from '@headlessui/react';
 import { CaretDown } from 'phosphor-react';
 

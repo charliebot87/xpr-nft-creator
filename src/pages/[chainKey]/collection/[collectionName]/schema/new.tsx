@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { CircleNotch } from 'phosphor-react';
 import { useRouter } from 'next/router';
 import { Disclosure } from '@headlessui/react';

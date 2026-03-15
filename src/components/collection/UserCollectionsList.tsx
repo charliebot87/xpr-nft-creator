@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { MagnifyingGlass } from 'phosphor-react';
 
 import { ipfsEndpoint } from '@configs/globalsConfig';

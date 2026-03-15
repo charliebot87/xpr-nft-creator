@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { Tab, Disclosure } from '@headlessui/react';
 import { CircleNotch } from 'phosphor-react';
 import Head from 'next/head';

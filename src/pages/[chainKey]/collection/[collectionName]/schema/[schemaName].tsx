@@ -1,5 +1,5 @@
 import { Tab } from '@headlessui/react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import Link from 'next/link';
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';

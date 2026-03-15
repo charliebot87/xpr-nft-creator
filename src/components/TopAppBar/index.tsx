@@ -24,7 +24,7 @@ export function TopAppBar() {
       }}
     >
       <div className="flex items-center gap-3">
-        <Chain chainKey={chainKey} />
+        <Chain chainKey={chainKey as string} />
         <div className="hidden md:flex items-center gap-2 ml-2">
           <span
             className="text-xs font-mono tracking-wider"
@@ -73,7 +73,7 @@ export function TopAppBar() {
           <NavItem href={`/${chainKey}/about`} onClick={() => setOpen(false)}>
             About
           </NavItem>
-          <Login chainKey={chainKey} />
+          <Login chainKey={chainKey as string} />
         </div>
         <button
           type="button"

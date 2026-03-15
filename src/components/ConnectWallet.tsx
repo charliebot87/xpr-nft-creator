@@ -1,4 +1,4 @@
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 
 function ConnectWalletComponent({ ual }: any) {
   function handleLogin() {

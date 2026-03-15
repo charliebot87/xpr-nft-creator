@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { CircleNotch, MagnifyingGlass } from 'phosphor-react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { Disclosure } from '@headlessui/react';
 
 import * as yup from 'yup';

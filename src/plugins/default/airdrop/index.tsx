@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { Disclosure } from '@headlessui/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';

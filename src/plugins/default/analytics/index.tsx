@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { withUAL } from 'ual-reactjs-renderer';
+import { withUAL } from '@libs/ual-compat';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { CircleNotch, ChartLine, Users, Cube, Lightning } from 'phosphor-react';
