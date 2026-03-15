@@ -148,9 +148,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const collectionsJson = await collectionsRes.json();
     const allCollections: CollectionProps[] = collectionsJson.data || [];
 
-    // Filter to only SimpleDEX community members
-    const filteredCollections = allCollections.filter((c) =>
-      allowedAccounts.has(c.author)
+    // Filter to only SimpleDEX community members with images
+    const filteredCollections = allCollections.filter(
+      (c) => allowedAccounts.has(c.author) && c.img
     );
 
     return {
