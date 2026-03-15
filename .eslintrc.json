@@ -3,6 +3,7 @@
   "plugins": ["prettier"],
   "rules": {
     "react/no-unescaped-entities": "off",
+    "react-hooks/exhaustive-deps": "warn",
     "prettier/prettier": "error",
     "arrow-body-style": "off",
     "prefer-arrow-callback": "off"
