@@ -47,6 +47,10 @@ class ProtonSDKService {
         requestAccount: this.requestAccount,
       },
       selectorOptions: {
+        dialogRootNode:
+          typeof document !== 'undefined'
+            ? document.getElementById('__next') || document.body
+            : undefined,
         appName: this.appName,
       },
     });
