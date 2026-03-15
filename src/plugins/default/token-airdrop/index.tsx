@@ -15,10 +15,7 @@ import {
   ArrowsClockwise,
 } from 'phosphor-react';
 
-import { useForm } from 'react-hook-form';
-
 import { Modal } from '@components/Modal';
-import { Input } from '@components/Input';
 
 import * as chainsConfig from '@configs/chainsConfig';
 import { appName } from '@configs/globalsConfig';
@@ -106,14 +103,6 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
   const chainIdLogged =
     ual?.activeUser?.chainId ?? ual?.activeUser?.chain?.chainId;
   const chainId = chainsConfig[chainKey as string]?.chainId;
-
-  const {
-    register,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const watchTemplateID = watch('templateID');
 
   // Fetch tokens from SimpleDEX indexer
   async function fetchTokens() {
@@ -314,7 +303,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
   }
 
   async function handleAirdrop() {
-    if (!watchTemplateID || selectedAccounts.size === 0 || !ual?.activeUser)
+    if (!selectedTemplateId || selectedAccounts.size === 0 || !ual?.activeUser)
       return;
 
     setSubmitting(true);
@@ -333,9 +322,9 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
         ],
         data: {
           authorized_minter: ual.activeUser.accountName,
-          collection_name: watch('collectionName') || '',
-          schema_name: watch('schemaName') || '',
-          template_id: parseInt(watchTemplateID),
+          collection_name: selectedCollection,
+          schema_name: selectedSchema,
+          template_id: parseInt(selectedTemplateId),
           new_asset_owner: account,
           immutable_data: [],
           mutable_data: [],
@@ -870,24 +859,168 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Input
-                {...register('collectionName')}
-                type="text"
-                label="Collection Name"
-                placeholder="e.g. mycollection"
-              />
-              <Input
-                {...register('schemaName')}
-                type="text"
-                label="Schema Name"
-                placeholder="e.g. myschema"
-              />
-              <Input
-                {...register('templateID')}
-                type="text"
-                label="Template ID"
-                placeholder="e.g. 12345"
-              />
+              {/* Collection dropdown */}
+              <div className="flex flex-col gap-2">
+                <label className="body-2 font-bold text-white">
+                  Collection Name
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedCollection}
+                    onChange={(e) => setSelectedCollection(e.target.value)}
+                    disabled={loadingCollections || collections.length === 0}
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm appearance-none cursor-pointer pr-10"
+                    style={{
+                      background: 'rgb(23,23,23)',
+                      border: '1px solid rgba(0,255,136,0.25)',
+                      opacity:
+                        loadingCollections || collections.length === 0
+                          ? 0.5
+                          : 1,
+                    }}
+                  >
+                    {loadingCollections ? (
+                      <option value="">Loading collections...</option>
+                    ) : collections.length === 0 ? (
+                      <option value="">No collections found</option>
+                    ) : (
+                      <>
+                        <option value="">Select collection...</option>
+                        {collections.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    {loadingCollections ? (
+                      <CircleNotch
+                        size={16}
+                        className="animate-spin"
+                        style={{ color: '#00ff88' }}
+                      />
+                    ) : (
+                      <span className="text-neutral-500 text-xs">▼</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Schema dropdown */}
+              <div className="flex flex-col gap-2">
+                <label className="body-2 font-bold text-white">
+                  Schema Name
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedSchema}
+                    onChange={(e) => setSelectedSchema(e.target.value)}
+                    disabled={
+                      !selectedCollection ||
+                      loadingSchemas ||
+                      schemas.length === 0
+                    }
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm appearance-none cursor-pointer pr-10"
+                    style={{
+                      background: 'rgb(23,23,23)',
+                      border: '1px solid rgba(0,255,136,0.25)',
+                      opacity:
+                        !selectedCollection ||
+                        loadingSchemas ||
+                        schemas.length === 0
+                          ? 0.5
+                          : 1,
+                    }}
+                  >
+                    {!selectedCollection ? (
+                      <option value="">Select collection first</option>
+                    ) : loadingSchemas ? (
+                      <option value="">Loading schemas...</option>
+                    ) : schemas.length === 0 ? (
+                      <option value="">No schemas found</option>
+                    ) : (
+                      <>
+                        <option value="">Select schema...</option>
+                        {schemas.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    {loadingSchemas ? (
+                      <CircleNotch
+                        size={16}
+                        className="animate-spin"
+                        style={{ color: '#00ff88' }}
+                      />
+                    ) : (
+                      <span className="text-neutral-500 text-xs">▼</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Template dropdown */}
+              <div className="flex flex-col gap-2">
+                <label className="body-2 font-bold text-white">
+                  Template ID
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedTemplateId}
+                    onChange={(e) => setSelectedTemplateId(e.target.value)}
+                    disabled={
+                      !selectedSchema ||
+                      loadingTemplates ||
+                      templates.length === 0
+                    }
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm appearance-none cursor-pointer pr-10"
+                    style={{
+                      background: 'rgb(23,23,23)',
+                      border: '1px solid rgba(0,255,136,0.25)',
+                      opacity:
+                        !selectedSchema ||
+                        loadingTemplates ||
+                        templates.length === 0
+                          ? 0.5
+                          : 1,
+                    }}
+                  >
+                    {!selectedSchema ? (
+                      <option value="">Select schema first</option>
+                    ) : loadingTemplates ? (
+                      <option value="">Loading templates...</option>
+                    ) : templates.length === 0 ? (
+                      <option value="">No templates found</option>
+                    ) : (
+                      <>
+                        <option value="">Select template...</option>
+                        {templates.map((t) => (
+                          <option key={t.template_id} value={t.template_id}>
+                            {t.name} (#{t.template_id})
+                          </option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    {loadingTemplates ? (
+                      <CircleNotch
+                        size={16}
+                        className="animate-spin"
+                        style={{ color: '#00ff88' }}
+                      />
+                    ) : (
+                      <span className="text-neutral-500 text-xs">▼</span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Summary */}
@@ -915,10 +1048,24 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                 </div>
                 <div>
                   <div className="text-neutral-500 text-xs mb-1">
+                    Collection
+                  </div>
+                  <div className="font-semibold text-white font-mono">
+                    {selectedCollection || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-neutral-500 text-xs mb-1">Schema</div>
+                  <div className="font-semibold text-white font-mono">
+                    {selectedSchema || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-neutral-500 text-xs mb-1">
                     Template ID
                   </div>
                   <div className="font-semibold text-white font-mono">
-                    #{watchTemplateID || '—'}
+                    #{selectedTemplateId || '—'}
                   </div>
                 </div>
                 <div>
@@ -939,27 +1086,32 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
             <button
               type="button"
               className="px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-200"
-              disabled={!watchTemplateID || submitting}
+              disabled={
+                !selectedCollection ||
+                !selectedSchema ||
+                !selectedTemplateId ||
+                submitting
+              }
               onClick={handleAirdrop}
               style={{
                 background:
-                  !watchTemplateID || submitting
+                  !selectedTemplateId || submitting
                     ? 'rgba(0,255,136,0.05)'
                     : 'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,200,100,0.1))',
                 border:
-                  !watchTemplateID || submitting
+                  !selectedTemplateId || submitting
                     ? '1px solid rgba(0,255,136,0.1)'
                     : '1px solid rgba(0,255,136,0.4)',
                 color:
-                  !watchTemplateID || submitting
+                  !selectedTemplateId || submitting
                     ? 'rgba(0,255,136,0.3)'
                     : '#00ff88',
                 boxShadow:
-                  !watchTemplateID || submitting
+                  !selectedTemplateId || submitting
                     ? 'none'
                     : '0 0 20px rgba(0,255,136,0.15)',
                 cursor:
-                  !watchTemplateID || submitting ? 'not-allowed' : 'pointer',
+                  !selectedTemplateId || submitting ? 'not-allowed' : 'pointer',
               }}
             >
               {submitting ? (

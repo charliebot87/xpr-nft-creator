@@ -1,4 +1,9 @@
-import { XLogo, TelegramLogo, GlobeSimple, GithubLogo } from 'phosphor-react';
+import {
+  TwitterLogo,
+  TelegramLogo,
+  GlobeSimple,
+  GithubLogo,
+} from 'phosphor-react';
 
 export function Footer() {
   return (
@@ -31,7 +36,7 @@ export function Footer() {
           rel="noreferrer"
           aria-label="X"
         >
-          <XLogo size={20} />
+          <TwitterLogo size={20} />
         </a>
         <a
           href="https://t.me/xprnetwork"
