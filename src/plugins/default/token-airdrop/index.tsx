@@ -88,6 +88,21 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
   const [holderSearch, setHolderSearch] = useState('');
   const [modal, setModal] = useState<ModalState>({ title: '' });
 
+  // Dropdown states for collection/schema/template
+  const [collections, setCollections] = useState<string[]>([]);
+  const [loadingCollections, setLoadingCollections] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState('');
+
+  const [schemas, setSchemas] = useState<string[]>([]);
+  const [loadingSchemas, setLoadingSchemas] = useState(false);
+  const [selectedSchema, setSelectedSchema] = useState('');
+
+  const [templates, setTemplates] = useState<
+    { template_id: string; name: string }[]
+  >([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
+
   const chainIdLogged =
     ual?.activeUser?.chainId ?? ual?.activeUser?.chain?.chainId;
   const chainId = chainsConfig[chainKey as string]?.chainId;
@@ -154,6 +169,111 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
       fetchTokens();
     }
   }, [chainId, chainIdLogged]);
+
+  // Fetch collections when user is logged in
+  useEffect(() => {
+    if (!ual?.activeUser?.accountName) return;
+    const accountName = ual.activeUser.accountName;
+    const aaEndpoint = chainsConfig[chainKey as string]?.aaEndpoint;
+    if (!aaEndpoint) return;
+
+    setLoadingCollections(true);
+    setCollections([]);
+    setSelectedCollection('');
+    setSchemas([]);
+    setSelectedSchema('');
+    setTemplates([]);
+    setSelectedTemplateId('');
+
+    fetch(
+      `${aaEndpoint}/atomicassets/v1/collections?author=${accountName}&limit=100`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const names = (data.data || []).map(
+          (c: { collection_name: string }) => c.collection_name
+        );
+        setCollections(names);
+        if (names.length === 1) {
+          setSelectedCollection(names[0]);
+        }
+      })
+      .catch(() => setCollections([]))
+      .finally(() => setLoadingCollections(false));
+  }, [ual?.activeUser?.accountName, chainKey]);
+
+  // Fetch schemas when collection is selected
+  useEffect(() => {
+    if (!selectedCollection) {
+      setSchemas([]);
+      setSelectedSchema('');
+      setTemplates([]);
+      setSelectedTemplateId('');
+      return;
+    }
+    const aaEndpoint = chainsConfig[chainKey as string]?.aaEndpoint;
+    if (!aaEndpoint) return;
+
+    setLoadingSchemas(true);
+    setSchemas([]);
+    setSelectedSchema('');
+    setTemplates([]);
+    setSelectedTemplateId('');
+
+    fetch(
+      `${aaEndpoint}/atomicassets/v1/schemas?collection_name=${selectedCollection}&limit=100`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const names = (data.data || []).map(
+          (s: { schema_name: string }) => s.schema_name
+        );
+        setSchemas(names);
+        if (names.length === 1) {
+          setSelectedSchema(names[0]);
+        }
+      })
+      .catch(() => setSchemas([]))
+      .finally(() => setLoadingSchemas(false));
+  }, [selectedCollection, chainKey]);
+
+  // Fetch templates when schema is selected
+  useEffect(() => {
+    if (!selectedCollection || !selectedSchema) {
+      setTemplates([]);
+      setSelectedTemplateId('');
+      return;
+    }
+    const aaEndpoint = chainsConfig[chainKey as string]?.aaEndpoint;
+    if (!aaEndpoint) return;
+
+    setLoadingTemplates(true);
+    setTemplates([]);
+    setSelectedTemplateId('');
+
+    fetch(
+      `${aaEndpoint}/atomicassets/v1/templates?collection_name=${selectedCollection}&schema_name=${selectedSchema}&limit=100`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const items = (data.data || []).map(
+          (t: {
+            template_id: string;
+            immutable_data?: { name?: string };
+            name?: string;
+          }) => ({
+            template_id: t.template_id,
+            name: t.immutable_data?.name || t.name || `Template`,
+          })
+        );
+        setTemplates(items);
+        if (items.length === 1) {
+          setSelectedTemplateId(items[0].template_id);
+        }
+      })
+      .catch(() => setTemplates([]))
+      .finally(() => setLoadingTemplates(false));
+  }, [selectedCollection, selectedSchema, chainKey]);
 
   const filteredTokens = useMemo(
     () =>

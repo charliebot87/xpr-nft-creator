@@ -34,7 +34,7 @@ export function Footer() {
           <XLogo size={20} />
         </a>
         <a
-          href="https://t.me/xaboranetwork"
+          href="https://t.me/xprnetwork"
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
