@@ -331,7 +331,9 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                   <span className="body-1">
                     <strong className="neon-text">{holders.length}</strong>{' '}
                     accounts hold{' '}
-                    <strong>{selectedToken.symbol || selectedToken.name}</strong>
+                    <strong>
+                      {selectedToken.symbol || selectedToken.name}
+                    </strong>
                   </span>
                 </div>
                 <div
@@ -347,9 +349,7 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                       className="flex justify-between py-1.5 border-b border-neutral-800/50 last:border-0"
                     >
                       <span className="text-neon/80">{holder.account}</span>
-                      <span className="text-neutral-500">
-                        {holder.balance}
-                      </span>
+                      <span className="text-neutral-500">{holder.balance}</span>
                     </div>
                   ))}
                 </div>
@@ -408,7 +408,8 @@ function TokenAirdrop({ ual }: TokenAirdropProps) {
                 )}
               </button>
               <span className="text-sm text-neutral-500">
-                Will mint 1 NFT per holder from template #{watchTemplateID || '?'}
+                Will mint 1 NFT per holder from template #
+                {watchTemplateID || '?'}
               </span>
             </div>
           </div>
