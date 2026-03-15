@@ -1,6 +1,6 @@
 import {
   TwitterLogo,
-  DiscordLogo,
+  TelegramLogo,
   GlobeSimple,
   GithubLogo,
 } from 'phosphor-react';
@@ -39,13 +39,13 @@ export function Footer() {
           <TwitterLogo size={20} />
         </a>
         <a
-          href="https://discord.com/invite/clawd"
+          href="https://t.me/xaboranetwork"
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
-          aria-label="Discord"
+          aria-label="Telegram"
         >
-          <DiscordLogo size={20} />
+          <TelegramLogo size={20} />
         </a>
         <a
           href="https://xprnetwork.org"
