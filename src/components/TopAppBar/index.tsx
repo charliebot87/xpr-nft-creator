@@ -15,12 +15,31 @@ export function TopAppBar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="flex items-center justify-between top-0 left-0 sticky z-40 w-full py-4 bg-neutral-900 px-4 md:px-8">
-      <Chain chainKey={chainKey} />
+    <header className="flex items-center justify-between top-0 left-0 sticky z-40 w-full py-4 px-4 md:px-8"
+      style={{
+        background: 'rgba(10, 10, 10, 0.85)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(0, 255, 136, 0.08)',
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <Chain chainKey={chainKey} />
+        <div className="hidden md:flex items-center gap-2 ml-2">
+          <span className="text-xs font-mono tracking-wider" style={{ color: 'rgba(0, 255, 136, 0.4)' }}>
+            {'//'}
+          </span>
+          <span className="text-xs font-mono tracking-widest neon-text opacity-60">
+            NFT CREATOR
+          </span>
+        </div>
+      </div>
       <nav className="flex gap-4">
         <div
           data-open={open}
-          className="flex md:items-center w-full h-[calc(100vh-5.5rem)] md:h-auto bg-neutral-900 flex-col md:flex-row absolute right-0 top-[5.5rem] md:static md:transform-none data-[open=false]:-left-full duration-300 data-[open=false]:opacity-0 data-[open=false]:md:opacity-100"
+          className="flex md:items-center w-full h-[calc(100vh-5.5rem)] md:h-auto flex-col md:flex-row absolute right-0 top-[5.5rem] md:static md:transform-none data-[open=false]:-left-full duration-300 data-[open=false]:opacity-0 data-[open=false]:md:opacity-100"
+          style={{
+            background: open ? 'rgba(10, 10, 10, 0.95)' : 'transparent',
+          }}
         >
           <NavItem href={`/${chainKey}`} onClick={() => setOpen(false)}>
             My Collections
@@ -54,7 +73,7 @@ export function TopAppBar() {
         </div>
         <button
           type="button"
-          className="p-3 md:hidden"
+          className="p-3 md:hidden text-neon hover:text-white transition-colors"
           onClick={() => setOpen(!open)}
           aria-label="Menu"
         >

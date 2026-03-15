@@ -6,6 +6,7 @@ import { UALProvider } from 'ual-reactjs-renderer';
 
 import { TopAppBar } from '@components/TopAppBar';
 import { Footer } from '@components/Footer';
+import { MatrixRain } from '@components/MatrixRain';
 import type { AppProps } from 'next/app';
 
 import { appName, chainKeyDefault } from '@configs/globalsConfig';
@@ -26,7 +27,11 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{appName}</title>
       </Head>
+
+      <MatrixRain />
+      <div className="scanline-overlay" />
 
       <UALProvider
         appName={appName}
@@ -34,9 +39,11 @@ export default function App({ Component, pageProps }: AppProps) {
         chains={blockchains}
         key={chainId}
       >
-        <TopAppBar />
-        <Component key={router.asPath} {...pageProps} />
-        <Footer />
+        <div className="relative z-10">
+          <TopAppBar />
+          <Component key={router.asPath} {...pageProps} />
+          <Footer />
+        </div>
       </UALProvider>
     </>
   );

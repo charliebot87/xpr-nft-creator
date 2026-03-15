@@ -29,7 +29,7 @@ export function Card({
       <Link
         href={href}
         prefetch={false}
-        className={`bg-neutral-800 rounded-xl overflow-hidden cursor-pointer hover:scale-105 duration-300 ${
+        className={`conspiracy-card cursor-pointer ${
           !id && 'flex flex-col justify-end'
         }`}
       >
@@ -46,7 +46,7 @@ export function Card({
   }
 
   return (
-    <div className="bg-neutral-800 rounded-xl overflow-hidden" {...props}>
+    <div className="conspiracy-card" {...props}>
       <CardContent
         id={id}
         image={image}
