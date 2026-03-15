@@ -9,6 +9,7 @@ import {
   DownloadSimple,
   PuzzlePiece,
   PaperPlaneTilt,
+  Fire,
 } from 'phosphor-react';
 
 import { Header } from '@components/Header';
@@ -36,6 +37,13 @@ const defaultPlugins = [
     description:
       'Send fungible tokens (CHARLIE, AGENT, etc.) to multiple accounts at once. Manual list or SimpleDEX holder targeting.',
     icon: PaperPlaneTilt,
+  },
+  {
+    plugin: 'batch-burn',
+    label: 'Batch Burn',
+    description:
+      'Permanently burn multiple NFTs at once. Select by collection, confirm, and destroy in batches of 50.',
+    icon: Fire,
   },
   {
     plugin: 'analytics',
