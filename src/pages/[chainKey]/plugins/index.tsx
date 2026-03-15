@@ -8,6 +8,7 @@ import {
   ChartLine,
   DownloadSimple,
   PuzzlePiece,
+  PaperPlaneTilt,
 } from 'phosphor-react';
 
 import { Header } from '@components/Header';
@@ -28,6 +29,13 @@ const defaultPlugins = [
     description:
       'Airdrop NFTs to holders of SimpleDEX tokens. Select a token, fetch holders, and distribute NFTs.',
     icon: Coins,
+  },
+  {
+    plugin: 'send-tokens',
+    label: 'Send Tokens',
+    description:
+      'Send fungible tokens (CHARLIE, AGENT, etc.) to multiple accounts at once. Manual list or SimpleDEX holder targeting.',
+    icon: PaperPlaneTilt,
   },
   {
     plugin: 'analytics',
