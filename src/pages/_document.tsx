@@ -20,7 +20,7 @@ export default function Document() {
         <meta property="og:image" content={metaIcon} />
         <meta property="og:url" content={appUrl} />
         <meta name="twitter:image:alt" content={appDescription} />
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content={metaIcon} />
         <link rel="icon" href={favicon} />
         <link rel="apple-touch-icon" href={metaIcon} />
