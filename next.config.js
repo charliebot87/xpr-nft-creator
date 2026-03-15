@@ -8,6 +8,16 @@ const nextConfig = {
   experimental: {
     esmExternals: 'loose',
   },
+  webpack: (config) => {
+    // @proton/web-sdk is loaded via IIFE bundle script tag (window.ProtonWebSDK)
+    // to avoid ESM/CJS interop issues and dual-Svelte-runtime collision.
+    // Mark it as external so webpack doesn't try to bundle the broken ESM version.
+    config.externals = [
+      ...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)),
+      { '@proton/web-sdk': 'ProtonWebSDK' },
+    ];
+    return config;
+  },
   images: {
     domains: [
       'simplelaunch.mypinata.cloud',
