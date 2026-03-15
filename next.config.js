@@ -10,7 +10,7 @@ const nextConfig = {
   },
   images: {
     domains: [
-      'ipfs.io',
+      'simplelaunch.mypinata.cloud', 'ipfs.io',
       'robohash.org',
       'xpr.api.atomicassets.io',
       'proton.api.atomicassets.io',
