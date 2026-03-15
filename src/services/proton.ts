@@ -13,23 +13,29 @@ export interface WalletResponse {
   error: string;
 }
 
-// Lazy-loaded SDK via webpack (handles ESM interop at build time)
+// Lazy-loaded SDK — uses the IIFE bundle loaded via <Script> in _document.tsx
+// which sets window.ProtonWebSDK, bypassing webpack's ESM/CJS interop issues
+// with @proton/link and the dual-Svelte-runtime collision.
 let ConnectWallet: any = null;
 
 async function loadSDK() {
   if (!ConnectWallet) {
-    console.log('[ProtonSDK] loading @proton/web-sdk via dynamic import...');
-    const mod = await import('@proton/web-sdk');
-    ConnectWallet = mod.default || mod;
-    console.log('[ProtonSDK] ConnectWallet type:', typeof ConnectWallet);
-    if (typeof ConnectWallet !== 'function') {
-      console.error(
-        '[ProtonSDK] ConnectWallet is not a function! Got:',
-        ConnectWallet
-      );
-      console.error('[ProtonSDK] module keys:', Object.keys(mod));
-      throw new Error('ConnectWallet is not a function');
+    console.log('[ProtonSDK] loading from window.ProtonWebSDK...');
+    // Wait up to 5s for the script tag to load
+    for (let i = 0; i < 50; i++) {
+      if (typeof (window as any).ProtonWebSDK === 'function') break;
+      await new Promise((r) => setTimeout(r, 100));
     }
+    ConnectWallet = (window as any).ProtonWebSDK;
+    if (typeof ConnectWallet !== 'function') {
+      throw new Error(
+        'ProtonWebSDK not available — bundle script may not have loaded'
+      );
+    }
+    console.log(
+      '[ProtonSDK] loaded from window.ProtonWebSDK:',
+      typeof ConnectWallet
+    );
   }
 }
 
@@ -69,6 +75,8 @@ class ProtonSDKService {
       },
       selectorOptions: {
         appName: this.appName,
+        dialogRootNode:
+          document.getElementById('proton-wallet-modal') || document.body,
       },
     });
 

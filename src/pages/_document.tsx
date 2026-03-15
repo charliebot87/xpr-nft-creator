@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document';
+import Script from 'next/script';
 import {
   favicon,
   appName,
@@ -29,8 +30,13 @@ export default function Document() {
         />
       </Head>
       <body>
+        <div id="proton-wallet-modal" />
         <Main />
         <NextScript />
+        <Script
+          src="https://cdn.jsdelivr.net/npm/@proton/web-sdk@4.2.20/dist/bundle.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </Html>
   );
