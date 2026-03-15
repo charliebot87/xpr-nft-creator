@@ -22,8 +22,8 @@ interface ExplorerProps {
 function getCollectionImageUrl(img: string): string {
   if (!img) return '';
   if (img.startsWith('http')) return img;
-  const base = ipfsEndpoint || 'https://ipfs.io';
-  return `${base}/ipfs/${img}`;
+  const base = ipfsEndpoint || 'https://ipfs.io/ipfs';
+  return `${base}/${img}`;
 }
 
 export default function Explorer({
