@@ -872,7 +872,7 @@ function Airdrop({ ual }: AirdropProps) {
                   <Link
                     className="flex py-2 underline underline-offset-2"
                     key={transaction}
-                    href={`https://eosauthority.com/transaction/${transaction}?network=${EOSAuthorityChain}`}
+                    href={`https://explorer.xprnetwork.org/transaction/${transaction}`}
                     target="_blank"
                   >
                     <span className="break-all">{transaction}</span>

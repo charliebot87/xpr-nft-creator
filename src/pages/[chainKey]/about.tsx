@@ -18,8 +18,8 @@ export default function About() {
             <h2 className="headline-2 mb-2">Purpose</h2>
             <p className="body-1 text-neutral-200 mb-2">
               Collection Manager is a reference UI implementation showcasing
-              AtomicAssets functionality, built by FACINGS and funded by the EOS
-              Network Foundation.
+              AtomicAssets functionality, built for XPR Network, forked from
+              FACINGS (funded by the EOS Network Foundation.
             </p>
             <p className="body-1 text-neutral-200">
               It's meant to work as both a stand-alone tool for collection
@@ -49,9 +49,7 @@ export default function About() {
               <li className="pl-1">
                 Help publishers, developers, and businesses ship faster
               </li>
-              <li className="pl-1">
-                Grow open-source community around core EOS/AtomicAssets needs
-              </li>
+              <li className="pl-1">Grow the XPR Network NFT ecosystem</li>
             </ol>
 
             <h3 className="title-1 mt-4 md:mt-8 mb-1">Core features</h3>

@@ -23,20 +23,16 @@ export function ResourceCard({
 }: ResourceProps) {
   const [inputValue, setInputValue] = useState('1');
 
-  const isWaxChain = ['wax', 'wax-test'].includes(chainKey);
-  const resourceChain = isWaxChain ? 'WAX' : 'EOS';
+  const isWaxChain = false;
+  const resourceChain = 'XPR';
 
   function handleActions() {
     const actions = [];
     const unstakeActions = [];
 
-    const resourceValue = `${parseInt(inputValue).toFixed(
-      resourceChain === 'WAX' ? 8 : 4
-    )} ${resourceChain}`;
+    const resourceValue = `${parseInt(inputValue).toFixed(4)} ${resourceChain}`;
 
-    const defaultValue = `${
-      resourceChain === 'WAX' ? '0.00000000' : '0.0000'
-    } ${resourceChain}`;
+    const defaultValue = `${'0.0000'} ${resourceChain}`;
 
     if (isWaxChain) {
       actions.push({
