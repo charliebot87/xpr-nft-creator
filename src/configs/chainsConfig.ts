@@ -1,24 +1,15 @@
-import { Anchor } from 'ual-anchor';
+// WebAuth only — no Anchor
+// WebAuth import is handled dynamically due to ESM compat with Node 25
+// On Vercel (Node 18) this resolves correctly at runtime
 
-// WebAuth is loaded dynamically client-side due to ESM compatibility
-// On Vercel (Node 18) it works, but Node 25 has stricter ESM handling
-let WebAuth: any = Anchor; // fallback
-if (typeof window !== 'undefined') {
-  try {
-    // @ts-ignore - dynamic ESM import
-    import('@proton/ual-webauth').then((mod) => {
-      WebAuth = mod.WebAuth;
-    });
-  } catch {
-    // WebAuth not available
-  }
-}
+const authenticators: any[] = [];
 
+// WebAuth will be injected by _app.tsx client-side
 export default {
   xpr: {
     name: 'XPR Network',
     imageUrl: '/xpr-icon-white.png',
-    authenticators: [Anchor],
+    authenticators,
     aaEndpoint: process.env.NEXT_PUBLIC_XPR_MAINNET_AA_ENDPOINT,
     chainId: process.env.NEXT_PUBLIC_XPR_MAINNET_CHAIN_ID,
     protocol: process.env.NEXT_PUBLIC_XPR_MAINNET_PROTOCOL,
