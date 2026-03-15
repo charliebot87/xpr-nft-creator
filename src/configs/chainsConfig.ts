@@ -1,11 +1,10 @@
-import { WebAuth } from '@proton/ual-webauth';
 import { Anchor } from 'ual-anchor';
 
 module.exports = {
   xpr: {
     name: 'XPR Network',
     imageUrl: '/xpr-icon-white.png',
-    authenticators: [WebAuth, Anchor],
+    authenticators: [Anchor],
     aaEndpoint: process.env.NEXT_PUBLIC_XPR_MAINNET_AA_ENDPOINT,
     chainId: process.env.NEXT_PUBLIC_XPR_MAINNET_CHAIN_ID,
     protocol: process.env.NEXT_PUBLIC_XPR_MAINNET_PROTOCOL,
