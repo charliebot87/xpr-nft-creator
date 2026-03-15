@@ -12,6 +12,11 @@ const nextConfig = {
       'facings.mypinata.cloud',
       'robohash.org',
       'ipfs.ledgerwise.io',
+      'xprnetwork.org',
+      'apricot-obliged-lion-20.mypinata.cloud',
+      'simplelaunch.mypinata.cloud',
+      'proton.api.atomicassets.io',
+      'agent.mypinata.cloud',
     ],
   },
 };

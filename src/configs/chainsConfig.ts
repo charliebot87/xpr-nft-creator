@@ -1,7 +1,20 @@
 import { Anchor } from 'ual-anchor';
-import { Wax } from '@eosdacio/ual-wax';
+
+// WebAuth import handled at runtime due to ESM compatibility
+const xprAuthenticators = [Anchor];
 
 module.exports = {
+  xpr: {
+    name: 'XPR Network',
+    imageUrl: 'https://xprnetwork.org/images/xpr-icon.png',
+    authenticators: xprAuthenticators,
+    aaEndpoint: process.env.NEXT_PUBLIC_XPR_MAINNET_AA_ENDPOINT,
+    chainId: process.env.NEXT_PUBLIC_XPR_MAINNET_CHAIN_ID,
+    protocol: process.env.NEXT_PUBLIC_XPR_MAINNET_PROTOCOL,
+    host: process.env.NEXT_PUBLIC_XPR_MAINNET_HOST,
+    port: process.env.NEXT_PUBLIC_XPR_MAINNET_PORT,
+  },
+
   eos: {
     name: 'EOS',
     imageUrl: 'https://bloks.io/img/chains/eos.png',
@@ -16,33 +29,11 @@ module.exports = {
   wax: {
     name: 'WAX',
     imageUrl: 'https://wax.bloks.io/img/chains/wax.png',
-    authenticators: [Anchor, Wax],
+    authenticators: [Anchor],
     aaEndpoint: process.env.NEXT_PUBLIC_WAX_MAINNET_AA_ENDPOINT,
     chainId: process.env.NEXT_PUBLIC_WAX_MAINNET_CHAIN_ID,
     protocol: process.env.NEXT_PUBLIC_WAX_MAINNET_PROTOCOL,
     host: process.env.NEXT_PUBLIC_WAX_MAINNET_HOST,
     port: process.env.NEXT_PUBLIC_WAX_MAINNET_PORT,
-  },
-
-  'wax-test': {
-    name: 'WAX (Testnet)',
-    imageUrl: 'https://wax.bloks.io/img/chains/wax.png',
-    authenticators: [Anchor],
-    aaEndpoint: process.env.NEXT_PUBLIC_WAX_TESTNET_AA_ENDPOINT,
-    chainId: process.env.NEXT_PUBLIC_WAX_TESTNET_CHAIN_ID,
-    protocol: process.env.NEXT_PUBLIC_WAX_TESTNET_PROTOCOL,
-    host: process.env.NEXT_PUBLIC_WAX_TESTNET_HOST,
-    port: process.env.NEXT_PUBLIC_WAX_TESTNET_PORT,
-  },
-
-  jungle4: {
-    name: 'Jungle4 (EOS Testnet)',
-    imageUrl: 'https://bloks.io/img/chains/jungle.png',
-    authenticators: [Anchor],
-    aaEndpoint: process.env.NEXT_PUBLIC_EOS_JUNGLE4_AA_ENDPOINT,
-    chainId: process.env.NEXT_PUBLIC_EOS_JUNGLE4_CHAIN_ID,
-    protocol: process.env.NEXT_PUBLIC_EOS_JUNGLE4_PROTOCOL,
-    host: process.env.NEXT_PUBLIC_EOS_JUNGLE4_HOST,
-    port: process.env.NEXT_PUBLIC_EOS_JUNGLE4_PORT,
   },
 };
