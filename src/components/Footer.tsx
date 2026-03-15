@@ -1,9 +1,4 @@
-import {
-  TwitterLogo,
-  TelegramLogo,
-  GlobeSimple,
-  GithubLogo,
-} from 'phosphor-react';
+import { XLogo, TelegramLogo, GlobeSimple, GithubLogo } from 'phosphor-react';
 
 export function Footer() {
   return (
@@ -34,9 +29,9 @@ export function Footer() {
           target="_blank"
           className="btn btn-square btn-ghost btn-small text-neutral-500 hover:text-neon"
           rel="noreferrer"
-          aria-label="Twitter"
+          aria-label="X"
         >
-          <TwitterLogo size={20} />
+          <XLogo size={20} />
         </a>
         <a
           href="https://t.me/xaboranetwork"
