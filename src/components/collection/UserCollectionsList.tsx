@@ -1,7 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { withUAL } from '@libs/ual-compat';
-import { MagnifyingGlass } from 'phosphor-react';
+import {
+  MagnifyingGlass,
+  Plus,
+  PaperPlaneTilt,
+  Coins,
+  Stack,
+  ArrowRight,
+  Wallet,
+} from 'phosphor-react';
 
 import { ipfsEndpoint } from '@configs/globalsConfig';
 import { listCollectionsService } from '@services/collection/listCollectionsService';
@@ -22,6 +30,106 @@ interface UserCollectionsListComponentProps {
     };
     showModal: () => void;
   };
+}
+
+const actionCards = [
+  {
+    title: 'Create NFT Collection',
+    description:
+      'Set up a new collection with schemas, templates, and mint NFTs.',
+    href: (chainKey: string) => `/${chainKey}/collection/new`,
+    icon: Plus,
+    gradient: 'from-green-500/20 to-emerald-500/5',
+  },
+  {
+    title: 'Airdrop NFTs',
+    description:
+      'Bulk send NFTs to holders of a collection or specific templates.',
+    href: (chainKey: string) =>
+      `/${chainKey}/plugins/airdrop?type=default`,
+    icon: PaperPlaneTilt,
+    gradient: 'from-cyan-500/20 to-blue-500/5',
+  },
+  {
+    title: 'Token Holder Airdrop',
+    description:
+      'Mint & airdrop NFTs to SimpleDEX token holders automatically.',
+    href: (chainKey: string) =>
+      `/${chainKey}/plugins/token-airdrop?type=default`,
+    icon: Coins,
+    gradient: 'from-purple-500/20 to-pink-500/5',
+  },
+];
+
+function ActionCard({
+  title,
+  description,
+  href,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  href: string;
+  icon: any;
+}) {
+  return (
+    <Link href={href} className="block group">
+      <div
+        className="relative rounded-2xl p-6 sm:p-8 transition-all duration-300 h-full"
+        style={{
+          background: 'rgba(0, 0, 0, 0.5)',
+          border: '1px solid rgba(0, 255, 136, 0.12)',
+        }}
+      >
+        {/* Hover glow overlay */}
+        <div
+          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          style={{
+            boxShadow:
+              '0 0 40px rgba(0, 255, 136, 0.12), inset 0 0 40px rgba(0, 255, 136, 0.03)',
+            border: '1px solid rgba(0, 255, 136, 0.3)',
+            borderRadius: 'inherit',
+          }}
+        />
+
+        <div className="relative z-10">
+          <div
+            className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110"
+            style={{
+              background:
+                'linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,200,100,0.05))',
+              border: '1px solid rgba(0,255,136,0.2)',
+              boxShadow: '0 0 20px rgba(0,255,136,0.08)',
+            }}
+          >
+            <Icon size={28} style={{ color: '#00ff88' }} weight="duotone" />
+          </div>
+
+          <h3
+            className="text-xl font-bold mb-2 transition-colors duration-300"
+            style={{ color: '#fff' }}
+          >
+            {title}
+          </h3>
+          <p className="text-sm text-neutral-400 leading-relaxed mb-4">
+            {description}
+          </p>
+
+          <div
+            className="flex items-center gap-2 text-sm font-semibold transition-all duration-300 group-hover:gap-3"
+            style={{ color: '#00ff88' }}
+          >
+            Get started
+            <ArrowRight
+              size={16}
+              weight="bold"
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
 }
 
 function UserCollectionsListComponent({
@@ -92,8 +200,24 @@ function UserCollectionsListComponent({
   if (author) {
     return (
       <>
+        {/* Action Cards - always visible when logged in */}
+        <section className="container pt-8 pb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {actionCards.map((card) => (
+              <ActionCard
+                key={card.title}
+                title={card.title}
+                description={card.description}
+                href={card.href(chainKey)}
+                icon={card.icon}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Collections section */}
         <Header.Root border>
-          <Header.Content title="My Collections" />
+          <Header.Content title="Dashboard" />
           <Header.Search>
             <Input
               icon={<MagnifyingGlass size={24} />}
@@ -139,10 +263,40 @@ function UserCollectionsListComponent({
               {isLoading ? (
                 <Loading />
               ) : (
-                <CreateNewItem
-                  href={`/${chainKey}/collection/new`}
-                  label="Create your first collection"
-                />
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,200,100,0.05))',
+                      border: '1px solid rgba(0,255,136,0.2)',
+                      boxShadow: '0 0 30px rgba(0,255,136,0.1)',
+                    }}
+                  >
+                    <Stack size={40} style={{ color: '#00ff88' }} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    No collections yet
+                  </h3>
+                  <p className="text-neutral-400 mb-8 max-w-md">
+                    Create your first NFT collection to get started with
+                    minting, templates, and airdrops.
+                  </p>
+                  <Link
+                    href={`/${chainKey}/collection/new`}
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,200,100,0.1))',
+                      border: '1px solid rgba(0,255,136,0.4)',
+                      color: '#00ff88',
+                      boxShadow: '0 0 30px rgba(0,255,136,0.15)',
+                    }}
+                  >
+                    <Plus size={20} weight="bold" />
+                    Create Your First Collection
+                  </Link>
+                </div>
               )}
             </>
           )}
@@ -151,22 +305,94 @@ function UserCollectionsListComponent({
     );
   }
 
+  // Not connected state - show hero + action cards
   return (
-    <div className="h-[calc(100vh-5.5rem-5.5rem-5.25rem)] md:h-[calc(100vh-5.5rem-5.375rem)] flex items-center justify-center">
-      <div className="md:max-w-lg lg:max-w-3xl text-center px-4">
-        <h2 className="headline-1">Explore and manage NFT Collections</h2>
-        <p className="body-1 mt-4 mb-8">
-          Connect your wallet to see and manage your collections
-        </p>
-        <div className="flex flex-col md:flex-row items-center gap-4 justify-center">
-          <button type="button" className="btn" onClick={handleLogin}>
-            Connect Wallet
-          </button>
-          <Link href={`/${chainKey}/explorer`} className="btn border-0">
-            Explorer
-          </Link>
+    <div className="flex flex-col">
+      {/* Hero */}
+      <div className="flex items-center justify-center py-16 sm:py-24 px-4">
+        <div className="max-w-3xl text-center">
+          <h1
+            className="text-4xl sm:text-5xl font-bold mb-4"
+            style={{
+              color: '#00ff88',
+              textShadow: '0 0 40px rgba(0,255,136,0.3)',
+            }}
+          >
+            XPR NFT Creator
+          </h1>
+          <p className="text-lg text-neutral-400 mb-10 max-w-xl mx-auto">
+            Create collections, mint NFTs, and airdrop to your community — all
+            on XPR Network.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center mb-6">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300"
+              onClick={handleLogin}
+              style={{
+                background:
+                  'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,200,100,0.1))',
+                border: '1px solid rgba(0,255,136,0.4)',
+                color: '#00ff88',
+                boxShadow: '0 0 30px rgba(0,255,136,0.15)',
+              }}
+            >
+              <Wallet size={20} weight="bold" />
+              Connect Wallet to Get Started
+            </button>
+            <Link
+              href={`/${chainKey}/explorer`}
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 text-neutral-400 hover:text-white"
+              style={{
+                border: '1px solid rgba(255,255,255,0.1)',
+              }}
+            >
+              Explorer
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Action cards preview (visible even without wallet) */}
+      <section className="container pb-16">
+        <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-widest mb-6 text-center">
+          What you can do
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {actionCards.map((card) => (
+            <div
+              key={card.title}
+              className="rounded-2xl p-6 sm:p-8"
+              style={{
+                background: 'rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(0, 255, 136, 0.08)',
+                opacity: 0.6,
+              }}
+            >
+              <div
+                className="w-14 h-14 rounded-xl flex items-center justify-center mb-5"
+                style={{
+                  background: 'rgba(0,255,136,0.08)',
+                  border: '1px solid rgba(0,255,136,0.12)',
+                }}
+              >
+                <card.icon
+                  size={28}
+                  style={{ color: '#00ff88' }}
+                  weight="duotone"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {card.title}
+              </h3>
+              <p className="text-sm text-neutral-500 leading-relaxed">
+                {card.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

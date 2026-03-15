@@ -46,7 +46,19 @@ export function TopAppBar() {
           }}
         >
           <NavItem href={`/${chainKey}`} onClick={() => setOpen(false)}>
-            My Collections
+            Dashboard
+          </NavItem>
+          <NavItem
+            href={`/${chainKey}/collection/new`}
+            onClick={() => setOpen(false)}
+          >
+            Create
+          </NavItem>
+          <NavItem
+            href={`/${chainKey}/plugins/airdrop?type=default`}
+            onClick={() => setOpen(false)}
+          >
+            Airdrop
           </NavItem>
           <NavItem
             href={`/${chainKey}/explorer`}
@@ -62,13 +74,6 @@ export function TopAppBar() {
           </NavItem>
           <NavItem href={`/${chainKey}/plugins`} onClick={() => setOpen(false)}>
             Plugins
-          </NavItem>
-          <NavItem
-            href="https://github.com/charliebot87/xpr-nft-creator"
-            onClick={() => setOpen(false)}
-            target="_blank"
-          >
-            Docs
           </NavItem>
           <NavItem href={`/${chainKey}/about`} onClick={() => setOpen(false)}>
             About

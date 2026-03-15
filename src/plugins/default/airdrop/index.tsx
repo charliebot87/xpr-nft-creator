@@ -4,7 +4,19 @@ import { Disclosure } from '@headlessui/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { DiceFive, CircleNotch } from 'phosphor-react';
+import {
+  DiceFive,
+  CircleNotch,
+  Stack,
+  Layout,
+  CubeFocus,
+  PaperPlaneTilt,
+  ArrowRight,
+  NumberCircleOne,
+  NumberCircleTwo,
+  NumberCircleThree,
+  NumberCircleFour,
+} from 'phosphor-react';
 
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';

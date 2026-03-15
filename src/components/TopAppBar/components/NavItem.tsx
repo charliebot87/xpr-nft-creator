@@ -10,7 +10,9 @@ interface NavItemProps extends LinkHTMLAttributes<HTMLAnchorElement> {
 
 export function NavItem({ children, href, ...rest }: NavItemProps) {
   const router = useRouter();
-  const isNavItemActive = router.asPath === href;
+  // Match on pathname or full asPath for query-param routes
+  const isNavItemActive =
+    router.asPath === href || router.asPath.split('?')[0] === href?.split('?')[0] && href?.includes('?') && router.asPath.includes(href?.split('?')[1] || '');
   const activeStyle = isNavItemActive
     ? { textShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
     : undefined;
