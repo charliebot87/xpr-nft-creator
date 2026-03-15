@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import {
   collectionAccountsService,
@@ -10,6 +10,7 @@ import { CardContainer } from '@components/CardContainer';
 import { SeeMoreButton } from '@components/SeeMoreButton';
 
 import { collectionTabs } from '@utils/collectionTabs';
+import protonRpc from '@services/proton-rpc';
 
 interface CollectionAccountsListProps {
   chainKey: string;
@@ -24,6 +25,23 @@ export function CollectionAccountsList({
 }: CollectionAccountsListProps) {
   const [accounts, setAccounts] = useState(initialAccounts);
   const [isLoading, setIsLoading] = useState(false);
+  const [avatars, setAvatars] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    async function fetchAvatars() {
+      const avs: Record<string, string> = {};
+      for (const acc of accounts) {
+        try {
+          const data = await protonRpc.getAccountData(acc.account);
+          if (data.avatar) {
+            avs[acc.account] = `data:image/jpeg;base64,${data.avatar}`;
+          }
+        } catch {}
+      }
+      setAvatars(avs);
+    }
+    fetchAvatars();
+  }, [accounts]);
 
   const limit = 12;
   const currentPage = Math.ceil(accounts.length / limit);
@@ -61,9 +79,8 @@ export function CollectionAccountsList({
               <Card
                 key={account.account}
                 image={
-                  account.account
-                    ? `https://robohash.org/${account.account}.png?set=set4`
-                    : ''
+                  avatars[account.account]
+                    || `https://robohash.org/${account.account}.png?set=set1`
                 }
                 title={account.account}
                 subtitle={`${account.assets} NFTs`}
