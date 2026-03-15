@@ -1,5 +1,5 @@
 import { appName } from '@configs/globalsConfig';
-import * as chainsConfig from '@configs/chainsConfig';
+import chainsConfig from '@configs/chainsConfig';
 import { blockchains } from '@utils/blockchains';
 
 export const authenticators = Object.keys(chainsConfig).reduce(

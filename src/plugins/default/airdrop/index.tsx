@@ -19,7 +19,7 @@ import { Switch } from '@components/Switch';
 import { Textarea } from '@components/Textarea';
 import { WarningCard } from '@components/WarningCard';
 
-import * as chainsConfig from '@configs/chainsConfig';
+import chainsConfig from '@configs/chainsConfig';
 import { appName } from '@configs/globalsConfig';
 
 import * as utils from './utils/utils';

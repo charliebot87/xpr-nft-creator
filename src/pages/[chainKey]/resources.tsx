@@ -9,7 +9,7 @@ import { Modal } from '@components/Modal';
 import { Header } from '@components/Header';
 import { ResourceCard } from '@components/ResourceCard';
 
-import * as chainsConfig from '@configs/chainsConfig';
+import chainsConfig from '@configs/chainsConfig';
 import { getAccount } from '@services/account/getAccount';
 import { appName, chainKeyDefault } from '@configs/globalsConfig';
 import { stakeResources } from '@services/resources/stakeResources';
