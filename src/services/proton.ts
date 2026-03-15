@@ -64,13 +64,10 @@ class ProtonSDKService {
       },
       transportOptions: {
         requestAccount: this.requestAccount,
+        backButton: true,
       },
       selectorOptions: {
         appName: this.appName,
-        dialogRootNode:
-          typeof document !== 'undefined'
-            ? document.getElementById('__next') || document.body
-            : undefined,
       },
     });
 
