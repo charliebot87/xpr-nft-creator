@@ -13,6 +13,25 @@ export interface WalletResponse {
   error: string;
 }
 
+// Lazy-loaded SDK
+let ConnectWallet: any = null;
+
+async function loadSDK() {
+  if (!ConnectWallet) {
+    console.log('[ProtonSDK] loading @proton/web-sdk...');
+    try {
+      // Use require for webpack compatibility
+      ConnectWallet = require('@proton/web-sdk').default;
+      console.log('[ProtonSDK] loaded via require:', typeof ConnectWallet);
+    } catch (e) {
+      console.log('[ProtonSDK] require failed, trying import...');
+      const mod = await import('@proton/web-sdk');
+      ConnectWallet = mod.default || mod;
+      console.log('[ProtonSDK] loaded via import:', typeof ConnectWallet);
+    }
+  }
+}
+
 class ProtonSDKService {
   link: any;
   session: any;
@@ -32,9 +51,8 @@ class ProtonSDKService {
   }: {
     restoreSession: boolean;
   }): Promise<void> => {
-    // Dynamic import to avoid SSR issues with ESM
-    console.log('[ProtonSDK] importing @proton/web-sdk...');
-    const { default: ConnectWallet } = await import('@proton/web-sdk');
+    await loadSDK();
+    console.log('[ProtonSDK] calling ConnectWallet...');
 
     const { link, session } = await ConnectWallet({
       linkOptions: {
@@ -48,14 +66,15 @@ class ProtonSDKService {
         requestAccount: this.requestAccount,
       },
       selectorOptions: {
+        appName: this.appName,
         dialogRootNode:
           typeof document !== 'undefined'
             ? document.getElementById('__next') || document.body
             : undefined,
-        appName: this.appName,
       },
     });
 
+    console.log('[ProtonSDK] connected:', !!session);
     this.link = link;
     this.session = session;
     this.auth = {
@@ -91,6 +110,7 @@ class ProtonSDKService {
         error: '',
       };
     } catch (e: any) {
+      console.error('[ProtonSDK] login error:', e);
       return {
         user: null,
         error: e.message || 'An error has occurred while logging in',
