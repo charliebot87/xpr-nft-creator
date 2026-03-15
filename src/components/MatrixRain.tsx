@@ -19,10 +19,13 @@ export function MatrixRain() {
     resize();
     window.addEventListener('resize', resize);
 
-    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$@#%&*';
+    const chars =
+      'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$@#%&*';
     const fontSize = 14;
     const columns = Math.floor(canvas.width / fontSize);
-    const drops: number[] = new Array(columns).fill(0).map(() => Math.random() * -100);
+    const drops: number[] = new Array(columns)
+      .fill(0)
+      .map(() => Math.random() * -100);
 
     function draw() {
       ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';

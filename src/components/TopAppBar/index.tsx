@@ -15,7 +15,8 @@ export function TopAppBar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="flex items-center justify-between top-0 left-0 sticky z-40 w-full py-4 px-4 md:px-8"
+    <header
+      className="flex items-center justify-between top-0 left-0 sticky z-40 w-full py-4 px-4 md:px-8"
       style={{
         background: 'rgba(10, 10, 10, 0.85)',
         backdropFilter: 'blur(16px)',
@@ -25,7 +26,10 @@ export function TopAppBar() {
       <div className="flex items-center gap-3">
         <Chain chainKey={chainKey} />
         <div className="hidden md:flex items-center gap-2 ml-2">
-          <span className="text-xs font-mono tracking-wider" style={{ color: 'rgba(0, 255, 136, 0.4)' }}>
+          <span
+            className="text-xs font-mono tracking-wider"
+            style={{ color: 'rgba(0, 255, 136, 0.4)' }}
+          >
             {'//'}
           </span>
           <span className="text-xs font-mono tracking-widest neon-text opacity-60">

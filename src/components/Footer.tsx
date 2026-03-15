@@ -7,12 +7,15 @@ import {
 
 export function Footer() {
   return (
-    <footer className="container flex flex-col md:flex-row gap-4 justify-between items-center py-8 mt-8"
+    <footer
+      className="container flex flex-col md:flex-row gap-4 justify-between items-center py-8 mt-8"
       style={{ borderTop: '1px solid rgba(0, 255, 136, 0.08)' }}
     >
       <div className="flex items-center gap-3">
         <span className="body-3 text-neutral-500">Powered by</span>
-        <span className="font-bold text-sm neon-text opacity-70">XPR Network</span>
+        <span className="font-bold text-sm neon-text opacity-70">
+          XPR Network
+        </span>
         <span className="text-neutral-600">|</span>
         <span className="body-3 text-neutral-600">AtomicAssets</span>
       </div>
