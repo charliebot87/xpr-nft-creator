@@ -71,7 +71,7 @@ function LoginComponent({ chainKey, ual }: LoginComponentProps) {
 
   if (!chainIdLogged || !chainId || chainId !== chainIdLogged) {
     return (
-      <button type="button" className="btn" onClick={handleLogin}>
+      <button type="button" className="btn btn-primary" onClick={handleLogin}>
         Connect Wallet
       </button>
     );
@@ -79,15 +79,27 @@ function LoginComponent({ chainKey, ual }: LoginComponentProps) {
 
   return (
     <Menu as="div" className="relative">
-      <Menu.Button className="flex gap-2 md:gap-1 items-center md:text-base text-2xl font-bold p-4 ui-open:text-white ui-not-open:text-neutral-400">
-        {ual.activeUser.accountName}
+      <Menu.Button className="flex gap-2 md:gap-1 items-center md:text-base text-2xl font-bold p-4 ui-open:text-neon ui-not-open:text-neutral-400 transition-colors">
+        <span className="font-mono">{ual.activeUser.accountName}</span>
         <CaretDown size={16} weight="bold" className="ui-open:rotate-180" />
       </Menu.Button>
 
-      <Menu.Items className="absolute z-10 bg-neutral-800 top-14 md:right-0 right-4 rounded w-[calc(100%-2rem)] md:w-auto">
+      <Menu.Items
+        className="absolute z-10 top-14 md:right-0 right-4 rounded-xl w-[calc(100%-2rem)] md:w-auto"
+        style={{
+          background: 'rgba(13, 17, 23, 0.95)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(0, 255, 136, 0.15)',
+        }}
+      >
         <Menu.Item>
           <Link href={`/${chainKey}/resources`}>
-            <div className="flex gap-4 ui-active:bg-neutral-700 md:body-2 body-1 font-bold text-white p-4 border-b border-neutral-700 justify-center">
+            <div
+              className="flex gap-4 ui-active:bg-neon/5 md:body-2 body-1 font-bold text-white p-4 justify-center"
+              style={{
+                borderBottom: '1px solid rgba(0, 255, 136, 0.08)',
+              }}
+            >
               <HardDrives size={24} />
               <span>Resources</span>
             </div>
@@ -96,7 +108,7 @@ function LoginComponent({ chainKey, ual }: LoginComponentProps) {
         <Menu.Item>
           <button
             type="button"
-            className="flex gap-4 ui-active:bg-neutral-700 w-full md:body-2 body-1 font-bold p-4 rounded whitespace-nowrap"
+            className="flex gap-4 ui-active:bg-neon/5 w-full md:body-2 body-1 font-bold p-4 rounded-b-xl whitespace-nowrap text-red-400"
             onClick={handleLogout}
           >
             <SignOut size={24} />

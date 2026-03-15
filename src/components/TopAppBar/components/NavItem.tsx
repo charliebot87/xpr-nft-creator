@@ -11,16 +11,17 @@ interface NavItemProps extends LinkHTMLAttributes<HTMLAnchorElement> {
 export function NavItem({ children, href, ...rest }: NavItemProps) {
   const router = useRouter();
   const isNavItemActive = router.asPath === href;
+  const activeStyle = isNavItemActive
+    ? { textShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
+    : undefined;
 
   return (
     <Link
       href={href}
       className={`md:text-base text-2xl font-bold p-4 whitespace-nowrap transition-all duration-300 ${
-        isNavItemActive
-          ? 'text-neon'
-          : 'text-neutral-400 hover:text-neon/80'
+        isNavItemActive ? 'text-neon' : 'text-neutral-400 hover:text-neon/80'
       }`}
-      style={isNavItemActive ? { textShadow: '0 0 10px rgba(0, 255, 136, 0.3)' } : {}}
+      style={activeStyle}
       {...rest}
     >
       {children}

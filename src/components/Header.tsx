@@ -32,8 +32,9 @@ function HeaderRoot({ border, breadcrumb, children }: HeaderRootProps) {
   return (
     <header
       className={`${breadcrumb ? 'pb-4 md:pb-8' : 'py-4 md:py-8'} ${
-        border ? 'border-b border-neutral-700' : ''
+        border ? 'border-b border-neutral-800' : ''
       }`}
+      style={border ? { borderColor: 'rgba(0, 255, 136, 0.08)' } : {}}
     >
       {breadcrumb && (
         <nav className="container py-2" aria-label="Breadcrumb">
