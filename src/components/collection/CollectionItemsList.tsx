@@ -6,7 +6,7 @@ import { ipfsEndpoint } from '@configs/globalsConfig';
 function getCollectionImageUrl(img: string): string {
   if (!img) return '';
   // Try AtomicAssets image proxy first (more reliable than raw ipfs.io)
-  return `https://xpr.api.atomicassets.io/ipfs/${img}`;
+  return `https://ipfs.io/ipfs/${img}`;
 }
 import {
   listCollectionsService,
