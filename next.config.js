@@ -5,6 +5,9 @@ const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
   distDir: '.next',
+  experimental: {
+    esmExternals: 'loose',
+  },
   images: {
     domains: [
       'wax.bloks.io',

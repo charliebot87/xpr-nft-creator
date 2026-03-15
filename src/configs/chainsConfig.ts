@@ -1,13 +1,19 @@
 import { Anchor } from 'ual-anchor';
 
-// WebAuth import handled at runtime due to ESM compatibility
-const xprAuthenticators = [Anchor];
+let ProtonWebAuth: any = null;
+try {
+  ProtonWebAuth = require('@proton/ual-webauth').ProtonWebAuth;
+} catch (e) {
+  // WebAuth not available
+}
+
+const xprAuth = ProtonWebAuth ? [ProtonWebAuth, Anchor] : [Anchor];
 
 module.exports = {
   xpr: {
     name: 'XPR Network',
     imageUrl: 'https://xprnetwork.org/images/xpr-icon.png',
-    authenticators: xprAuthenticators,
+    authenticators: xprAuth,
     aaEndpoint: process.env.NEXT_PUBLIC_XPR_MAINNET_AA_ENDPOINT,
     chainId: process.env.NEXT_PUBLIC_XPR_MAINNET_CHAIN_ID,
     protocol: process.env.NEXT_PUBLIC_XPR_MAINNET_PROTOCOL,
