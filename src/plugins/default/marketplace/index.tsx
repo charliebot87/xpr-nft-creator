@@ -827,7 +827,7 @@ function Marketplace({ ual }: MarketplaceProps) {
       {/* Buy Confirmation Modal */}
       {buyModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
-          <div className="bg-neutral-900 border border-neutral-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-6">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-6 pb-10 max-h-[90vh] overflow-y-auto">
             {txResult?.success ? (
               <div className="text-center">
                 <div className="text-[#00ff88] text-5xl mb-4">✓</div>
@@ -925,7 +925,7 @@ function Marketplace({ ual }: MarketplaceProps) {
       {/* Listing Flow Modal */}
       {showListingFlow && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
-          <div className="bg-neutral-900 border border-neutral-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl p-6 pb-10 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white text-xl font-bold">
                 {listingStep === 'select' && 'Select an NFT to List'}
