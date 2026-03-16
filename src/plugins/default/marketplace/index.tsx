@@ -18,9 +18,9 @@ async function getSimpleDexAccounts(): Promise<Set<string>> {
     const creators = (tokensJson.tokens || []).map((t: any) => t.creator);
     const topCreators = (lbJson.topCreators || []).map((t: any) => t.account);
     const topTraders = (lbJson.topTraders || []).map((t: any) => t.account);
-    return new Set([...creators, ...topCreators, ...topTraders]);
+    return new Set([...creators, ...topCreators, ...topTraders, 'charliebot']);
   } catch {
-    return new Set();
+    return new Set(['charliebot']);
   }
 }
 

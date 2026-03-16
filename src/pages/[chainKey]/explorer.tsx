@@ -76,9 +76,10 @@ export default function Explorer({
     (async () => {
       try {
         // Get SimpleDEX community collections
-        const allowedCollections = new Set(
-          initialCollections.map((c) => c.collection_name)
-        );
+        const allowedCollections = new Set([
+          ...initialCollections.map((c) => c.collection_name),
+          'whisperer123', 'charlieart12', 'purplemoon12',
+        ]);
         const res = await fetch(
           `${API_BASE}/atomicmarket/v1/sales?state=1&sort=created&order=desc&limit=50`
         );
