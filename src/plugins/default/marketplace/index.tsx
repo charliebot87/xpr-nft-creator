@@ -492,7 +492,7 @@ function Marketplace({ ual }: MarketplaceProps) {
   };
 
   const tabClasses = (t: Tab) =>
-    `px-6 py-3 rounded-lg font-semibold text-sm transition-all cursor-pointer ${
+    `px-6 py-3 rounded-lg font-semibold text-sm transition-all cursor-pointer whitespace-nowrap min-h-[44px] flex items-center ${
       tab === t
         ? 'bg-[#00ff88] text-neutral-900'
         : 'bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700'
@@ -510,7 +510,10 @@ function Marketplace({ ual }: MarketplaceProps) {
         </div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8">
+        <div
+          className="flex gap-3 mb-8 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible md:flex-wrap"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           <button
             className={tabClasses('browse')}
             onClick={() => setTab('browse')}
@@ -546,7 +549,7 @@ function Marketplace({ ual }: MarketplaceProps) {
         {/* Browse Tab */}
         {tab === 'browse' && (
           <div>
-            <div className="flex flex-wrap gap-4 mb-6 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:items-center">
               <select
                 value={collectionFilter}
                 onChange={(e) => setCollectionFilter(e.target.value)}
@@ -585,7 +588,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                 <p className="text-sm">Be the first to list an NFT for sale!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {sales.map((sale) => renderSaleCard(sale))}
               </div>
             )}
@@ -628,7 +631,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {mySales.map((sale) => {
                       const asset = sale.assets?.[0];
                       if (!asset) return null;
@@ -774,8 +777,8 @@ function Marketplace({ ual }: MarketplaceProps) {
 
       {/* Buy Confirmation Modal */}
       {buyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="bg-neutral-900 border border-neutral-700 rounded-2xl max-w-md w-full p-6">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-6">
             {txResult?.success ? (
               <div className="text-center">
                 <div className="text-[#00ff88] text-5xl mb-4">✓</div>
@@ -872,8 +875,8 @@ function Marketplace({ ual }: MarketplaceProps) {
 
       {/* Listing Flow Modal */}
       {showListingFlow && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="bg-neutral-900 border border-neutral-700 rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white text-xl font-bold">
                 {listingStep === 'select' && 'Select an NFT to List'}
@@ -901,7 +904,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                     You don&apos;t own any NFTs to list
                   </p>
                 ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto">
                     {ownedAssets.map((asset) => {
                       const imgUrl = getAssetImage(asset);
                       const name = getAssetName(asset);

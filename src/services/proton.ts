@@ -83,6 +83,12 @@ class ProtonSDKService {
     console.log('[ProtonSDK] connected:', !!session);
     this.link = link;
     this.session = session;
+
+    if (!session || !session.auth) {
+      console.log('[ProtonSDK] no session or auth, skipping');
+      return;
+    }
+
     this.auth = {
       actor: session.auth.actor.toString(),
       permission: session.auth.permission.toString(),

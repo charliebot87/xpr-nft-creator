@@ -130,7 +130,10 @@ export default function Explorer({
               View all →
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
+          <div
+            className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             {hotSales.map((sale) => {
               const asset = sale.assets?.[0];
               if (!asset) return null;

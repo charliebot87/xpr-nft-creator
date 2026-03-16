@@ -167,12 +167,16 @@ export function CollectionStats({ stats, collection }: CollectionStatsProps) {
                       key={key}
                       href={socials[key]}
                       target="_blank"
-                      className="font-bold underline"
+                      className="font-bold underline block"
                       rel="noreferrer"
                     >
-                      <div className="flex justify-start gap-4 py-3 body-2 text-white border-b border-neutral-700">
-                        {handleSocialIcon(key)}
-                        <span className="font-bold">{socials[key]}</span>
+                      <div className="flex justify-start gap-4 py-3 body-2 text-white border-b border-neutral-700 min-h-[44px] items-center overflow-hidden">
+                        <span className="flex-shrink-0">
+                          {handleSocialIcon(key)}
+                        </span>
+                        <span className="font-bold truncate">
+                          {socials[key]}
+                        </span>
                       </div>
                     </a>
                   );
