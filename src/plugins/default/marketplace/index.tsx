@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { withUAL } from '@libs/ual-compat';
 import { ipfsEndpoint } from '@configs/globalsConfig';
 
@@ -490,7 +491,7 @@ function Marketplace({ ual }: MarketplaceProps) {
         key={sale.sale_id}
         className="rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/80 hover:border-[#00ff88]/40 transition-all duration-200 flex flex-col"
       >
-        <div className="aspect-square bg-neutral-800 relative overflow-hidden">
+        <Link href={`/xpr/collection/${sale.collection_name}/asset/${asset.asset_id}`} className="aspect-square bg-neutral-800 relative overflow-hidden block cursor-pointer">
           {imgUrl ? (
             <img
               src={imgUrl}
@@ -503,7 +504,7 @@ function Marketplace({ ual }: MarketplaceProps) {
               No Image
             </div>
           )}
-        </div>
+        </Link>
         <div className="p-4 flex flex-col gap-2 flex-1">
           <h3 className="text-white font-semibold text-sm truncate">{name}</h3>
           <p className="text-neutral-500 text-xs truncate">
@@ -691,7 +692,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                           key={sale.sale_id}
                           className="rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/80 flex flex-col"
                         >
-                          <div className="aspect-square bg-neutral-800 relative overflow-hidden">
+                          <Link href={`/xpr/collection/${sale.collection_name}/asset/${asset.asset_id}`} className="aspect-square bg-neutral-800 relative overflow-hidden block cursor-pointer">
                             {imgUrl ? (
                               <img
                                 src={imgUrl}
@@ -704,7 +705,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                                 No Image
                               </div>
                             )}
-                          </div>
+                          </Link>
                           <div className="p-4 flex flex-col gap-2 flex-1">
                             <h3 className="text-white font-semibold text-sm truncate">
                               {name}
