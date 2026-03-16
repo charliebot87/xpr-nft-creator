@@ -1,8 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Menu } from '@headlessui/react';
-import { CaretDown, HardDrives, SignOut } from 'phosphor-react';
-import Link from 'next/link';
+import { SignOut } from 'phosphor-react';
 
 import { useAuthContext } from '@components/Provider/AuthProvider';
 
@@ -43,44 +40,19 @@ export function Login({ chainKey }: LoginProps) {
   }
 
   return (
-    <Menu as="div" className="relative">
-      <Menu.Button className="flex gap-2 md:gap-1 items-center md:text-base text-2xl font-bold p-4 ui-open:text-neon ui-not-open:text-neutral-400 transition-colors">
-        <span className="font-mono">{currentUser.actor}</span>
-        <CaretDown size={16} weight="bold" className="ui-open:rotate-180" />
-      </Menu.Button>
-
-      <Menu.Items
-        className="absolute z-10 top-14 md:right-0 right-4 rounded-xl w-[calc(100%-2rem)] md:w-auto"
-        style={{
-          background: 'rgba(13, 17, 23, 0.95)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(0, 255, 136, 0.15)',
-        }}
+    <div className="flex items-center gap-3 px-4 md:px-0">
+      <span className="font-mono font-bold text-neon text-sm md:text-base">
+        {currentUser.actor}
+      </span>
+      <button
+        type="button"
+        className="p-2 rounded-lg hover:bg-neutral-800 text-red-400 hover:text-red-300 transition-colors"
+        onClick={handleLogout}
+        title="Log Out"
+        aria-label="Log Out"
       >
-        <Menu.Item>
-          <Link href={`/${chainKey}/resources`}>
-            <div
-              className="flex gap-4 ui-active:bg-neon/5 md:body-2 body-1 font-bold text-white p-4 justify-center"
-              style={{
-                borderBottom: '1px solid rgba(0, 255, 136, 0.08)',
-              }}
-            >
-              <HardDrives size={24} />
-              <span>Resources</span>
-            </div>
-          </Link>
-        </Menu.Item>
-        <Menu.Item>
-          <button
-            type="button"
-            className="flex gap-4 ui-active:bg-neon/5 w-full md:body-2 body-1 font-bold p-4 rounded-b-xl whitespace-nowrap text-red-400"
-            onClick={handleLogout}
-          >
-            <SignOut size={24} />
-            Log Out
-          </button>
-        </Menu.Item>
-      </Menu.Items>
-    </Menu>
+        <SignOut size={22} />
+      </button>
+    </div>
   );
 }

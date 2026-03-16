@@ -288,8 +288,9 @@ function Marketplace({ ual }: MarketplaceProps) {
     else if (tab === 'history') fetchHistory();
   }, [tab, fetchSales, fetchMySales, fetchHistory, sdxCollections]);
 
-  // Also fetch all collections on mount for filter dropdown
+  // Populate collection filter dropdown from SimpleDEX-filtered sales
   useEffect(() => {
+    if (sdxCollections.size === 0) return;
     (async () => {
       try {
         const url = `${API_BASE}/atomicmarket/v1/sales?state=1&order=desc&sort=created&limit=100`;
@@ -298,7 +299,9 @@ function Marketplace({ ual }: MarketplaceProps) {
         if (json.success) {
           const cols = new Set<string>();
           (json.data || []).forEach((s: SaleData) => {
-            if (s.collection_name) cols.add(s.collection_name);
+            if (s.collection_name && sdxCollections.has(s.collection_name)) {
+              cols.add(s.collection_name);
+            }
           });
           setCollections(Array.from(cols).sort());
         }
@@ -306,7 +309,7 @@ function Marketplace({ ual }: MarketplaceProps) {
         // ignore
       }
     })();
-  }, []);
+  }, [sdxCollections]);
 
   const handleBuy = async (sale: SaleData) => {
     if (!accountName) {
