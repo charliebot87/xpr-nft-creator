@@ -10,6 +10,7 @@ import {
   PuzzlePiece,
   PaperPlaneTilt,
   Fire,
+  Storefront,
 } from 'phosphor-react';
 
 import { Header } from '@components/Header';
@@ -44,6 +45,13 @@ const defaultPlugins = [
     description:
       'Permanently burn multiple NFTs at once. Select by collection, confirm, and destroy in batches of 50.',
     icon: Fire,
+  },
+  {
+    plugin: 'marketplace',
+    label: 'Marketplace',
+    description:
+      'Buy and sell NFTs on XPR Network. Browse listings, list your NFTs for sale, and purchase from other collectors.',
+    icon: Storefront,
   },
   {
     plugin: 'analytics',
