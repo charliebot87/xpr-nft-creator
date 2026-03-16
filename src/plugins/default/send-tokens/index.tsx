@@ -1182,6 +1182,40 @@ function SendTokens({ ual }: { ual: any }) {
               )}
             </div>
 
+            {/* Proportional Breakdown */}
+            {sendMode === 'proportional' && recipientMode === 'simpledex' && totalAmount > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-bold text-white">Distribution Breakdown</h4>
+                  <span className="text-xs text-neutral-500">{activeRecipients.length} recipients</span>
+                </div>
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(0,255,136,0.1)' }}>
+                  <div className="grid grid-cols-12 gap-0 px-4 py-2 text-xs font-mono text-neutral-500" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                    <div className="col-span-4">Account</div>
+                    <div className="col-span-3 text-right">Holdings</div>
+                    <div className="col-span-3 text-right">Share %</div>
+                    <div className="col-span-2 text-right">Receives</div>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {activeRecipients.map((acc) => {
+                      const holdings = holderAmountMap.get(acc) || 0;
+                      const totalHoldings = Array.from(holderAmountMap.values()).reduce((a, b) => a + b, 0) || 1;
+                      const sharePercent = ((holdings / totalHoldings) * 100);
+                      const receives = amountMap.get(acc) || 0;
+                      return (
+                        <div key={acc} className="grid grid-cols-12 gap-0 px-4 py-2 text-xs font-mono hover:bg-neutral-800/50 transition-colors" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+                          <div className="col-span-4 text-neutral-300 truncate">{acc}</div>
+                          <div className="col-span-3 text-right text-neutral-400">{holdings >= 1000000 ? (holdings / 1000000).toFixed(1) + 'M' : holdings >= 1000 ? (holdings / 1000).toFixed(1) + 'K' : holdings.toFixed(0)}</div>
+                          <div className="col-span-3 text-right" style={{ color: '#9966ff' }}>{sharePercent.toFixed(2)}%</div>
+                          <div className="col-span-2 text-right" style={{ color: '#00ff88' }}>{receives >= 1000000 ? (receives / 1000000).toFixed(1) + 'M' : receives >= 1000 ? (receives / 1000).toFixed(1) + 'K' : receives.toFixed(selectedToken?.precision || 4)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Send button */}
             <button
               type="button"
