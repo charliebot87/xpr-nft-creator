@@ -8,6 +8,7 @@ import {
   House,
   MagnifyingGlass,
   Storefront,
+  Wallet,
   PlusCircle,
   PaperPlaneTilt,
   Parachute,
@@ -118,6 +119,11 @@ export function TopAppBar() {
         href: `/${chainKey}/plugins/marketplace?type=default`,
         label: 'Marketplace',
         icon: <Storefront size={20} weight="bold" />,
+      },
+      {
+        href: `/${chainKey}/my-nfts`,
+        label: 'My NFTs',
+        icon: <Wallet size={20} weight="bold" />,
       },
     ],
     create: [
