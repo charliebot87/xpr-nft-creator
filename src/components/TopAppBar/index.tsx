@@ -168,23 +168,12 @@ export function TopAppBar() {
         }}
       >
         {/* Left: Logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center">
           <Chain chainKey={chainKey as string} />
-          <div className="hidden md:flex items-center gap-2 ml-2">
-            <span
-              className="text-xs font-mono tracking-wider"
-              style={{ color: 'rgba(0, 255, 136, 0.4)' }}
-            >
-              {'//'}
-            </span>
-            <span className="text-xs font-mono tracking-widest neon-text opacity-60">
-              NFT CREATOR
-            </span>
-          </div>
         </div>
 
         {/* Center: Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {navItems.main.map((item) => (
             <DesktopNavItem
               key={item.href}
@@ -218,14 +207,14 @@ export function TopAppBar() {
 
         {/* Right: Desktop Login + Mobile Burger */}
         <div className="flex items-center gap-3">
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <Login chainKey={chainKey as string} />
           </div>
 
           {/* Burger button - mobile only */}
           <button
             type="button"
-            className="relative w-10 h-10 flex items-center justify-center md:hidden z-[60]"
+            className="relative w-10 h-10 flex items-center justify-center lg:hidden z-[60]"
             onClick={() => setOpen(!open)}
             aria-label={open ? 'Close menu' : 'Open menu'}
           >
@@ -252,7 +241,7 @@ export function TopAppBar() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 z-50 md:hidden transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-0 z-50 lg:hidden transition-transform duration-300 ease-in-out ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{ background: 'rgba(0, 0, 0, 0.95)' }}
