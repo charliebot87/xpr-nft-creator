@@ -1155,7 +1155,15 @@ function SendTokens({ ual }: { ual: any }) {
                     Your Balance
                   </div>
                   <div className="font-semibold text-white font-mono">
-                    {selectedToken.balance}
+                    {(() => {
+                      const parts = selectedToken.balance.split(' ');
+                      if (parts.length === 2) {
+                        const [num, sym] = parts;
+                        const [whole, dec] = num.split('.');
+                        return whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (dec ? '.' + dec : '') + ' ' + sym;
+                      }
+                      return selectedToken.balance;
+                    })()}
                   </div>
                 </div>
                 <div>
