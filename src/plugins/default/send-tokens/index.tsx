@@ -91,7 +91,7 @@ function SendTokens({ ual }: { ual: any }) {
   // Amount & sending
   const [amountPerRecipient, setAmountPerRecipient] = useState('');
   const [totalAirdropAmount, setTotalAirdropAmount] = useState('');
-  const [memo, setMemo] = useState('Airdrop from XPR NFT Creator');
+  const [memo, setMemo] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
 
@@ -110,6 +110,13 @@ function SendTokens({ ual }: { ual: any }) {
     ual?.activeUser?.chainId ?? ual?.activeUser?.chain?.chainId;
   const chainId = chainsConfig[chainKey as string]?.chainId;
   const accountName = ual?.activeUser?.accountName;
+
+  // Set default memo with sender name
+  useEffect(() => {
+    if (accountName && !memo) {
+      setMemo(`Airdrop from ${accountName} via nft.charliebot.dev`);
+    }
+  }, [accountName]);
 
   async function fetchUserBalances() {
     if (!accountName) return;
