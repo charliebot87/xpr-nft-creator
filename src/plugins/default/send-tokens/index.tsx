@@ -239,7 +239,10 @@ function SendTokens({ ual }: { ual: any }) {
   );
 
   function formatQuantity(amount: number, token: UserToken): string {
-    return `${amount.toFixed(token.precision)} ${token.symbol}`;
+    const fixed = amount.toFixed(token.precision);
+    const [whole, decimals] = fixed.split('.');
+    const withCommas = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return `${withCommas}${decimals ? '.' + decimals : ''} ${token.symbol}`;
   }
 
   // Calculate amounts per account
