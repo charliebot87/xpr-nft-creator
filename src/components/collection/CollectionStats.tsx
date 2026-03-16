@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { collectionTabs } from '@utils/collectionTabs';
 import {
   MediumLogo,
@@ -36,6 +37,35 @@ interface CollectionStatsProps {
 }
 
 export function CollectionStats({ stats, collection }: CollectionStatsProps) {
+  const [floorPrice, setFloorPrice] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(
+          `https://xpr.api.atomicassets.io/atomicmarket/v1/sales?state=1&collection_name=${collection.collection_name}&sort=price&order=asc&limit=1`
+        );
+        const json = await res.json();
+        if (json.success && json.data?.length > 0) {
+          const sale = json.data[0];
+          const precision = sale.price?.token_precision || 4;
+          const raw = parseInt(sale.listing_price, 10);
+          if (!isNaN(raw)) {
+            const xpr = raw / Math.pow(10, precision);
+            setFloorPrice(
+              xpr.toLocaleString(undefined, {
+                minimumFractionDigits: 4,
+                maximumFractionDigits: 4,
+              }) + ' XPR'
+            );
+          }
+        }
+      } catch {
+        // silently fail
+      }
+    })();
+  }, [collection.collection_name]);
+
   const statsContent = [
     ['Name', collection.collection_name],
     ['Created', new Date(Number(collection.created_at_time)).toLocaleString()],
@@ -43,6 +73,7 @@ export function CollectionStats({ stats, collection }: CollectionStatsProps) {
     ['Burned', stats.burned ?? 0],
     ['Templates', stats.templates],
     ['Schemas', stats.schemas],
+    ...(floorPrice ? [['Floor Price', floorPrice]] : []),
   ];
 
   const creatorInfo =

@@ -36,6 +36,7 @@ import { CollectionAccountsList } from '@components/collection/CollectionAccount
 import { CollectionSchemasList } from '@components/collection/CollectionSchemasList';
 import { CollectionAssetsList } from '@components/collection/CollectionAssetsList';
 import { CollectionPlugins } from '@components/collection/CollectionPlugins';
+import { CollectionForSale } from '@components/collection/CollectionForSale';
 import { CollectionStats } from '@components/collection/CollectionStats';
 import { CollectionHints } from '@components/collection/CollectionHints';
 
@@ -179,6 +180,10 @@ function Collection({
           {hasAuthorization && (
             <Tab className="tab">{collectionTabs[5].name}</Tab>
           )}
+          <Tab className="tab">
+            {collectionTabs[6].name}
+            <span className="badge-small">💰</span>
+          </Tab>
         </Tab.List>
         <Tab.Panels>
           <Tab.Panel>
@@ -222,6 +227,12 @@ function Collection({
           </Tab.Panel>
           <Tab.Panel>
             <CollectionPlugins
+              chainKey={chainKey}
+              collectionName={collection.collection_name}
+            />
+          </Tab.Panel>
+          <Tab.Panel>
+            <CollectionForSale
               chainKey={chainKey}
               collectionName={collection.collection_name}
             />

@@ -79,8 +79,8 @@ export function CollectionAccountsList({
               <Card
                 key={account.account}
                 image={
-                  avatars[account.account]
-                    || `https://robohash.org/${account.account}.png?set=set1`
+                  avatars[account.account] ||
+                  `https://robohash.org/${account.account}.png?set=set1`
                 }
                 title={account.account}
                 subtitle={`${account.assets} NFTs`}

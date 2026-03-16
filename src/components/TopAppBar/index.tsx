@@ -75,6 +75,12 @@ export function TopAppBar() {
           <NavItem href={`/${chainKey}/plugins`} onClick={() => setOpen(false)}>
             Plugins
           </NavItem>
+          <NavItem
+            href={`/${chainKey}/plugins/marketplace?type=default`}
+            onClick={() => setOpen(false)}
+          >
+            🏪 Marketplace
+          </NavItem>
           <NavItem href={`/${chainKey}/about`} onClick={() => setOpen(false)}>
             About
           </NavItem>

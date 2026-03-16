@@ -23,4 +23,8 @@ export const collectionTabs = [
     name: 'Plugins',
     key: 'add-ons',
   },
+  {
+    name: 'For Sale',
+    key: 'for-sale',
+  },
 ];
