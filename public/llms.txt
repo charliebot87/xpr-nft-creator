@@ -235,6 +235,121 @@ To airdrop to holders of a specific SimpleDEX token:
 3. Filter by minimum balance if desired
 4. Mint or transfer NFTs to each qualifying holder
 
+## Marketplace (Buy/Sell NFTs)
+
+The `atomicmarket` contract handles NFT sales on XPR Network.
+API: https://xpr.api.atomicassets.io/atomicmarket/v1/
+
+### Register a Marketplace (one-time)
+
+Action: `atomicmarket::regmarket`
+```json
+{
+  "creator": "youraccount",
+  "marketplace_name": "youraccount"
+}
+```
+This registers your account to earn maker/taker fees (1% each) on sales through your marketplace.
+
+### List NFT for Sale (two actions in one transaction)
+
+Action 1: `atomicmarket::announcesale`
+```json
+{
+  "seller": "youraccount",
+  "asset_ids": [4398047002936],
+  "listing_price": "100.0000 XPR",
+  "settlement_symbol": "4,XPR",
+  "maker_marketplace": "charliebot"
+}
+```
+
+Action 2: `atomicassets::createoffer`
+```json
+{
+  "sender": "youraccount",
+  "recipient": "atomicmarket",
+  "sender_asset_ids": [4398047002936],
+  "recipient_asset_ids": [],
+  "memo": "sale"
+}
+```
+
+Rules:
+- Both actions MUST be in the same transaction
+- listing_price: string with exactly 4 decimal places for XPR (e.g. "1.0000 XPR")
+- settlement_symbol: "4,XPR" for XPR payments
+- Supported tokens: XPR (eosio.token), XUSDC (xtokens), XMD (xmd.token)
+- maker_marketplace: use "charliebot" for nft.charliebot.dev (earns 1% maker fee)
+- The createoffer transfers the NFT to atomicmarket escrow until sold or cancelled
+
+### Buy NFT (two actions in one transaction)
+
+Action 1: `eosio.token::transfer`
+```json
+{
+  "from": "buyeraccount",
+  "to": "atomicmarket",
+  "quantity": "100.0000 XPR",
+  "memo": "deposit"
+}
+```
+
+Action 2: `atomicmarket::purchasesale`
+```json
+{
+  "buyer": "buyeraccount",
+  "sale_id": 391639,
+  "intended_delphi_median": 0,
+  "taker_marketplace": "charliebot"
+}
+```
+
+Rules:
+- quantity must EXACTLY match the listing_price
+- For XPR: use eosio.token contract, 4 decimal places
+- For XUSDC: use xtokens contract, 6 decimal places
+- taker_marketplace: use "charliebot" for nft.charliebot.dev (earns 1% taker fee)
+- intended_delphi_median: set to 0 (price oracle, not needed for fixed-price sales)
+
+### Cancel Listing
+
+Action: `atomicmarket::cancelsale`
+```json
+{
+  "sale_id": 391639
+}
+```
+Authorization: seller's active permission. NFT returns to seller's wallet.
+
+### Query Sales (API)
+
+Browse all active sales:
+`GET /atomicmarket/v1/sales?state=1&order=desc&sort=created&limit=50`
+
+Filter by collection:
+`GET /atomicmarket/v1/sales?state=1&collection_name=whisperer123&limit=50`
+
+Filter by seller:
+`GET /atomicmarket/v1/sales?state=1&seller=youraccount`
+
+Sales history (completed):
+`GET /atomicmarket/v1/sales?state=3&sort=updated&order=desc&limit=20`
+
+Sale by ID:
+`GET /atomicmarket/v1/sales/{sale_id}`
+
+### Price Format Notes
+- API returns prices as raw integers: 10000 = 1.0000 XPR (divide by 10^precision)
+- XPR precision: 4 (divide by 10000)
+- XUSDC precision: 6 (divide by 1000000)
+- When listing, always use the string format: "1.0000 XPR"
+
+### Fee Structure
+- Maker fee: 1% (paid by seller, goes to maker_marketplace)
+- Taker fee: 1% (paid by buyer, goes to taker_marketplace)
+- Collection fee: set by collection creator (market_fee field, 0-15%)
+
 ## Common Attribute Types
 - string: text, IPFS hashes, URLs
 - uint64: large numbers, IDs
