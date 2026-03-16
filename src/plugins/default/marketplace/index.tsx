@@ -67,9 +67,17 @@ function formatPrice(amount: string | number, symbol = 'XPR'): string {
   return `${parts.join('.')} ${symbol}`;
 }
 
-function parsePriceFromListing(listing_price: string): number {
-  const match = listing_price.match(/([\d.]+)/);
-  return match ? parseFloat(match[1]) : 0;
+function parsePriceFromListing(listing_price: string, precision = 4): number {
+  const raw = parseInt(listing_price, 10);
+  if (isNaN(raw)) return 0;
+  return raw / Math.pow(10, precision);
+}
+
+
+function rawPriceToAsset(rawPrice: string, symbol: string, precision: number): string {
+  const amount = parseInt(rawPrice, 10);
+  const divisor = Math.pow(10, precision);
+  return (amount / divisor).toFixed(precision) + ' ' + symbol;
 }
 
 type Tab = 'browse' | 'my-listings' | 'history';
@@ -267,7 +275,7 @@ function Marketplace({ ual }: MarketplaceProps) {
           data: {
             from: accountName,
             to: 'atomicmarket',
-            quantity: sale.listing_price,
+            quantity: rawPriceToAsset(sale.listing_price, sale.listing_symbol || 'XPR', sale.price?.token_precision || 4),
             memo: 'deposit',
           },
         },
@@ -279,7 +287,7 @@ function Marketplace({ ual }: MarketplaceProps) {
             sale_id: parseInt(sale.sale_id, 10),
             buyer: accountName,
             intended_delphi_median: 0,
-            taker_marketplace: 'fees.market',
+            taker_marketplace: 'charliebot',
           },
         },
       ];
@@ -348,7 +356,7 @@ function Marketplace({ ual }: MarketplaceProps) {
             asset_ids: [parseInt(selectedAsset.asset_id, 10)],
             listing_price: formattedPrice,
             settlement_symbol: '4,XPR',
-            maker_marketplace: 'fees.market',
+            maker_marketplace: 'charliebot',
           },
         },
         {
@@ -446,7 +454,7 @@ function Marketplace({ ual }: MarketplaceProps) {
             {sale.collection_name}
           </p>
           <p className="text-[#00ff88] font-bold text-lg mt-auto">
-            {formatPrice(parsePriceFromListing(price))}
+            {formatPrice(parsePriceFromListing(price, sale.price?.token_precision || 4), sale.listing_symbol || "XPR")}
           </p>
           <p className="text-neutral-500 text-xs truncate">
             Seller: {sale.seller}
@@ -644,7 +652,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                             </p>
                             <p className="text-[#00ff88] font-bold text-lg mt-auto">
                               {formatPrice(
-                                parsePriceFromListing(sale.listing_price)
+                                parsePriceFromListing(sale.listing_price, sale.price?.token_precision || 4), sale.listing_symbol || 'XPR'
                               )}
                             </p>
                             <button
@@ -723,7 +731,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                           </td>
                           <td className="py-3 px-4 text-[#00ff88] font-semibold">
                             {formatPrice(
-                              parsePriceFromListing(sale.listing_price)
+                              parsePriceFromListing(sale.listing_price, sale.price?.token_precision || 4), sale.listing_symbol || 'XPR'
                             )}
                           </td>
                           <td className="py-3 px-4 text-neutral-400">
@@ -803,7 +811,7 @@ function Marketplace({ ual }: MarketplaceProps) {
                 <div className="bg-neutral-800 rounded-lg p-4 mb-4">
                   <p className="text-neutral-400 text-sm mb-1">Total Price</p>
                   <p className="text-[#00ff88] text-2xl font-bold">
-                    {formatPrice(parsePriceFromListing(buyModal.listing_price))}
+                    {formatPrice(parsePriceFromListing(buyModal.listing_price, buyModal.price?.token_precision || 4), buyModal.listing_symbol || 'XPR')}
                   </p>
                 </div>
                 <p className="text-neutral-500 text-sm mb-4">
