@@ -75,18 +75,27 @@ export default function Explorer({
   useEffect(() => {
     (async () => {
       try {
+        // Get SimpleDEX community collections
+        const allowedCollections = new Set(
+          initialCollections.map((c) => c.collection_name)
+        );
         const res = await fetch(
-          `${API_BASE}/atomicmarket/v1/sales?state=1&sort=created&order=desc&limit=8`
+          `${API_BASE}/atomicmarket/v1/sales?state=1&sort=created&order=desc&limit=50`
         );
         const json = await res.json();
-        if (json.success) setHotSales(json.data || []);
+        if (json.success) {
+          const filtered = (json.data || []).filter(
+            (s: any) => allowedCollections.has(s.collection_name)
+          );
+          setHotSales(filtered.slice(0, 8));
+        }
       } catch {
         // silently fail
       } finally {
         setLoadingSales(false);
       }
     })();
-  }, []);
+  }, [initialCollections]);
 
   const filtered = initialCollections.filter((c) => {
     if (!search) return true;

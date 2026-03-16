@@ -3,6 +3,39 @@ import { withUAL } from '@libs/ual-compat';
 import { ipfsEndpoint } from '@configs/globalsConfig';
 
 const API_BASE = 'https://xpr.api.atomicassets.io';
+const INDEXER_BASE = 'https://indexer.protonnz.com';
+const INDEXER_HEADERS = { 'User-Agent': 'xpr-nft-creator/1.0' };
+
+async function getSimpleDexAccounts(): Promise<Set<string>> {
+  try {
+    const [tokensRes, lbRes] = await Promise.all([
+      fetch(`${INDEXER_BASE}/api/tokens?fields=compact&limit=500`, { headers: INDEXER_HEADERS }),
+      fetch(`${INDEXER_BASE}/api/leaderboard?limit=100`, { headers: INDEXER_HEADERS }),
+    ]);
+    const tokensJson = await tokensRes.json();
+    const lbJson = await lbRes.json();
+    const creators = (tokensJson.tokens || []).map((t: any) => t.creator);
+    const topCreators = (lbJson.topCreators || []).map((t: any) => t.account);
+    const topTraders = (lbJson.topTraders || []).map((t: any) => t.account);
+    return new Set([...creators, ...topCreators, ...topTraders]);
+  } catch {
+    return new Set();
+  }
+}
+
+async function getSimpleDexCollections(): Promise<Set<string>> {
+  const accounts = await getSimpleDexAccounts();
+  try {
+    const res = await fetch(`${API_BASE}/atomicassets/v1/collections?limit=500&order=desc&sort=created`);
+    const json = await res.json();
+    const collections = (json.data || [])
+      .filter((c: any) => accounts.has(c.author))
+      .map((c: any) => c.collection_name);
+    return new Set(collections);
+  } catch {
+    return new Set();
+  }
+}
 
 type SaleData = {
   sale_id: string;
@@ -122,6 +155,11 @@ function Marketplace({ ual }: MarketplaceProps) {
   const [selectedAsset, setSelectedAsset] = useState<OwnedAsset | null>(null);
   const [listingPrice, setListingPrice] = useState('');
   const [listingError, setListingError] = useState('');
+  const [sdxCollections, setSdxCollections] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    getSimpleDexCollections().then(setSdxCollections);
+  }, []);
   const [listingTxId, setListingTxId] = useState('');
   const [loadingAssets, setLoadingAssets] = useState(false);
 
@@ -162,10 +200,14 @@ function Marketplace({ ual }: MarketplaceProps) {
       const res = await fetch(url);
       const json = await res.json();
       if (json.success) {
-        setSales(json.data || []);
-        // Extract unique collections
+        const allSales = json.data || [];
+        const filtered = sdxCollections.size > 0
+          ? allSales.filter((s: SaleData) => sdxCollections.has(s.collection_name))
+          : allSales;
+        setSales(filtered);
+        // Extract unique collections from filtered sales
         const cols = new Set<string>();
-        (json.data || []).forEach((s: SaleData) => {
+        filtered.forEach((s: SaleData) => {
           if (s.collection_name) cols.add(s.collection_name);
         });
         if (!collectionFilter) {
@@ -182,7 +224,7 @@ function Marketplace({ ual }: MarketplaceProps) {
     } finally {
       setLoading(false);
     }
-  }, [sortBy, collectionFilter]);
+  }, [sortBy, collectionFilter, sdxCollections]);
 
   const fetchMySales = useCallback(async () => {
     if (!accountName) return;
@@ -210,14 +252,18 @@ function Marketplace({ ual }: MarketplaceProps) {
       const res = await fetch(url);
       const json = await res.json();
       if (json.success) {
-        setHistory(json.data || []);
+        const allHistory = json.data || [];
+        const filteredHistory = sdxCollections.size > 0
+          ? allHistory.filter((s: SaleData) => sdxCollections.has(s.collection_name))
+          : allHistory;
+        setHistory(filteredHistory);
       }
     } catch (e: any) {
       setError(e.message || 'Failed to fetch sales history');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sdxCollections]);
 
   const fetchOwnedAssets = useCallback(async () => {
     if (!accountName) return;
@@ -240,7 +286,7 @@ function Marketplace({ ual }: MarketplaceProps) {
     if (tab === 'browse') fetchSales();
     else if (tab === 'my-listings') fetchMySales();
     else if (tab === 'history') fetchHistory();
-  }, [tab, fetchSales, fetchMySales, fetchHistory]);
+  }, [tab, fetchSales, fetchMySales, fetchHistory, sdxCollections]);
 
   // Also fetch all collections on mount for filter dropdown
   useEffect(() => {
