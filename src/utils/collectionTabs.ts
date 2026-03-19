@@ -20,10 +20,6 @@ export const collectionTabs = [
     key: 'accounts',
   },
   {
-    name: 'Plugins',
-    key: 'add-ons',
-  },
-  {
     name: 'For Sale',
     key: 'for-sale',
   },
