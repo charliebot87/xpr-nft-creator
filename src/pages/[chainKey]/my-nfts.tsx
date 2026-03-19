@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { GetStaticProps, GetStaticPaths } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 
 import { withUAL } from '@libs/ual-compat';
 import { appName, ipfsEndpoint } from '@configs/globalsConfig';
@@ -624,18 +625,22 @@ function MyNFTs({ chainKey, ual }: MyNFTsProps) {
                   )}
 
                   {/* Image */}
-                  <div className="aspect-square bg-neutral-900 flex items-center justify-center overflow-hidden">
-                    {imgUrl ? (
-                      <img
-                        src={imgUrl}
-                        alt={name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="text-neutral-600 text-4xl">🖼</div>
-                    )}
-                  </div>
+                  <Link
+                    href={`/${chainKey}/collection/${asset.collection.collection_name}/asset/${asset.asset_id}`}
+                  >
+                    <div className="aspect-square bg-neutral-900 flex items-center justify-center overflow-hidden cursor-pointer">
+                      {imgUrl ? (
+                        <img
+                          src={imgUrl}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="text-neutral-600 text-4xl">🖼</div>
+                      )}
+                    </div>
+                  </Link>
 
                   {/* Info */}
                   <div className="p-4">

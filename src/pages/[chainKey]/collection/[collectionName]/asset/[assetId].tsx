@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Tab } from '@headlessui/react';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -255,10 +255,53 @@ function Asset({ ual, chainKey, asset }: AssetViewProps) {
   const isOwner = accountName && asset.owner === accountName;
   const isSeller = activeSale && activeSale.seller === accountName;
 
+  // OG meta data
+  const immData = asset.template?.immutable_data || {};
+  const ogTitle = immData.name || `NFT #${asset.asset_id}`;
+  const ogDescription = immData.description || `NFT on XPR Network`;
+  const ogImage = immData.img ? `https://ipfs.io/ipfs/${immData.img}` : '';
+  const ogUrl = `https://nft.charliebot.dev/xpr/collection/${collection.collection_name}/asset/${asset.asset_id}`;
+
+  // Share handlers
+  const [copied, setCopied] = useState(false);
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(ogUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = ogUrl;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleShareX = () => {
+    const text = encodeURIComponent(
+      `Check out my ${ogTitle} NFT on XPR Network!`
+    );
+    const url = encodeURIComponent(ogUrl);
+    window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  };
+
   return (
     <>
       <Head>
-        <title>{`NFT #${asset.asset_id} - ${appName}`}</title>
+        <title>{`${ogTitle} - ${appName}`}</title>
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
+        {ogImage && <meta property="og:image" content={ogImage} />}
+        <meta property="og:url" content={ogUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={ogTitle} />
+        {ogImage && <meta name="twitter:image" content={ogImage} />}
+        <meta name="twitter:description" content={ogDescription} />
       </Head>
 
       <Header.Root
@@ -400,6 +443,24 @@ function Asset({ ual, chainKey, asset }: AssetViewProps) {
           </div>
         </section>
       )}
+
+      {/* Share Buttons */}
+      <section className="container py-4">
+        <div className="max-w-2xl mx-auto flex gap-3">
+          <button
+            onClick={handleCopyLink}
+            className="px-5 py-2.5 rounded-lg bg-[#00ff88]/10 border border-[#00ff88]/40 text-[#00ff88] font-semibold hover:bg-[#00ff88]/20 transition-all text-sm"
+          >
+            {copied ? '✓ Copied!' : '🔗 Copy Link'}
+          </button>
+          <button
+            onClick={handleShareX}
+            className="px-5 py-2.5 rounded-lg bg-[#00ff88]/10 border border-[#00ff88]/40 text-[#00ff88] font-semibold hover:bg-[#00ff88]/20 transition-all text-sm"
+          >
+            𝕏 Share on X
+          </button>
+        </div>
+      </section>
 
       <Tab.Group>
         <Tab.List className="tab-list mb-4 md:mb-8">
