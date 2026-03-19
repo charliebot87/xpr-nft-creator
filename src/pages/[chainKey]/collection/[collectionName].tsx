@@ -225,7 +225,6 @@ function Collection({
             />
           </Tab.Panel>
           <Tab.Panel>
-          <Tab.Panel>
             <CollectionForSale
               chainKey={chainKey}
               collectionName={collection.collection_name}
