@@ -1,0 +1,358 @@
+# XPR NFT Creator — llms.txt
+# How AI agents create, manage, and distribute NFTs on XPR Network
+# App: https://nft.charliebot.dev
+# Contract: atomicassets (AtomicAssets NFT standard)
+# Chain: XPR Network (chain_id: 384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0)
+# RPC: https://api.protonnz.com
+# AtomicAssets API: https://xpr.api.atomicassets.io
+# IPFS Display: https://ipfs.io/ipfs/{hash}
+# IPFS Upload: https://api.pinata.cloud/pinning/pinFileToIPFS (requires JWT)
+
+## Overview
+
+NFTs on XPR Network use the AtomicAssets standard. The hierarchy is:
+Collection → Schema → Template → Asset (NFT)
+
+- Collection: top-level container, owned by an account
+- Schema: defines the data fields (attributes) for a group of templates
+- Template: immutable blueprint with shared data (name, image, description)
+- Asset: individual NFT minted from a template, owned by an account
+
+All actions go to the `atomicassets` contract on XPR Network.
+Transactions are free (no gas fees). Sign with WebAuth wallet or Anchor.
+
+## Step-by-Step: Create an NFT Collection and Mint
+
+### 1. Create Collection
+
+Action: `atomicassets::createcol`
+```json
+{
+  "author": "youraccount",
+  "collection_name": "mycol12345",
+  "allow_notify": true,
+  "authorized_accounts": ["youraccount"],
+  "notify_accounts": [],
+  "market_fee": 0.05,
+  "data": [
+    {"key": "name", "value": ["string", "My Collection"]},
+    {"key": "img", "value": ["string", "QmIPFSHASH"]},
+    {"key": "description", "value": ["string", "Collection description"]},
+    {"key": "url", "value": ["string", "https://example.com"]}
+  ]
+}
+```
+
+Rules:
+- collection_name: exactly 12 chars, a-z and 1-5 only
+- author must be the signing account
+- market_fee: 0.0 to 0.15 (0% to 15%)
+- data uses ATTRIBUTE_MAP format: array of {"key": string, "value": [type, value]}
+- img should be an IPFS hash (upload image to Pinata first)
+
+### 2. Create Schema
+
+Action: `atomicassets::createschema`
+```json
+{
+  "authorized_creator": "youraccount",
+  "collection_name": "mycol12345",
+  "schema_name": "artwork",
+  "schema_format": [
+    {"name": "name", "type": "string"},
+    {"name": "img", "type": "string"},
+    {"name": "description", "type": "string"},
+    {"name": "video", "type": "string"}
+  ]
+}
+```
+
+Rules:
+- schema_name: max 12 chars, a-z and 1-5 only
+- authorized_creator must be in collection's authorized_accounts
+- schema_format defines allowed attributes for templates/assets in this schema
+- Common fields: name (string), img (string/IPFS hash), description (string), video (string)
+- Schemas can be extended (extendschema) but fields cannot be removed
+
+### 3. Create Template
+
+Action: `atomicassets::createtempl`
+```json
+{
+  "authorized_creator": "youraccount",
+  "collection_name": "mycol12345",
+  "schema_name": "artwork",
+  "transferable": true,
+  "burnable": true,
+  "max_supply": 100,
+  "immutable_data": [
+    {"key": "name", "value": ["string", "Wojak #1"]},
+    {"key": "img", "value": ["string", "QmIPFSHASH"]},
+    {"key": "description", "value": ["string", "A rare wojak"]}
+  ]
+}
+```
+
+Rules:
+- max_supply: 0 = unlimited, >0 = capped supply
+- transferable: if false, NFTs from this template cannot be transferred
+- burnable: if false, NFTs from this template cannot be burned
+- immutable_data: permanent, cannot be changed after creation
+- Template ID is auto-assigned (check response or query API)
+
+### 4. Mint Asset (NFT)
+
+Action: `atomicassets::mintasset`
+```json
+{
+  "authorized_minter": "youraccount",
+  "collection_name": "mycol12345",
+  "schema_name": "artwork",
+  "template_id": 12345,
+  "new_asset_owner": "recipientacc",
+  "immutable_data": [],
+  "mutable_data": [],
+  "tokens_to_back": []
+}
+```
+
+Rules:
+- template_id: from createtempl (query API to find it)
+- new_asset_owner: who receives the minted NFT
+- immutable_data/mutable_data: additional per-asset data (optional, usually empty if template has everything)
+- tokens_to_back: token assets to back the NFT with (usually empty)
+- Can mint directly to any account (no need to mint-then-transfer)
+
+### 5. Transfer NFTs
+
+Action: `atomicassets::transfer`
+```json
+{
+  "from": "youraccount",
+  "to": "recipientacc",
+  "asset_ids": [4398047002885, 4398047002886],
+  "memo": "airdrop from charlie"
+}
+```
+
+Rules:
+- asset_ids: array of uint64 asset IDs
+- Can transfer multiple assets in one transaction
+- memo is optional but useful for tracking
+
+### 6. Burn NFTs
+
+Action: `atomicassets::burnasset`
+```json
+{
+  "asset_owner": "youraccount",
+  "asset_id": 4398047002885
+}
+```
+
+Rules:
+- Only the asset owner can burn
+- Template must have burnable=true
+- Permanent and irreversible
+- For batch burns: send multiple burnasset actions in one transaction (max ~50 per tx)
+
+### 7. Update Collection Data
+
+Action: `atomicassets::setcoldata`
+```json
+{
+  "collection_name": "mycol12345",
+  "data": [
+    {"key": "name", "value": ["string", "Updated Name"]},
+    {"key": "img", "value": ["string", "QmNEWHASH"]}
+  ]
+}
+```
+
+### 8. Update Asset Mutable Data
+
+Action: `atomicassets::setassetdata`
+```json
+{
+  "authorized_editor": "youraccount",
+  "asset_owner": "owneraccount",
+  "asset_id": 4398047002885,
+  "new_mutable_data": [
+    {"key": "img", "value": ["string", "QmNEWHASH"]}
+  ]
+}
+```
+
+## Querying Data (Read-Only)
+
+### AtomicAssets API (REST)
+Base: https://xpr.api.atomicassets.io
+
+- List collections: `GET /atomicassets/v1/collections?author={account}&limit=100`
+- Get collection: `GET /atomicassets/v1/collections/{collection_name}`
+- List schemas: `GET /atomicassets/v1/schemas?collection_name={name}`
+- List templates: `GET /atomicassets/v1/templates?collection_name={name}`
+- Get template: `GET /atomicassets/v1/templates/{collection_name}/{template_id}`
+- List assets: `GET /atomicassets/v1/assets?owner={account}&collection_name={name}&limit=100`
+- Get asset: `GET /atomicassets/v1/assets/{asset_id}`
+- Search assets: `GET /atomicassets/v1/assets?owner={account}&limit=100`
+
+### On-Chain Tables (RPC)
+POST https://api.protonnz.com/v1/chain/get_table_rows
+
+Collections: `{"code":"atomicassets","scope":"atomicassets","table":"collections","lower_bound":"{name}","upper_bound":"{name}","json":true}`
+Schemas: `{"code":"atomicassets","scope":"{collection_name}","table":"schemas","json":true}`
+Templates: `{"code":"atomicassets","scope":"{collection_name}","table":"templates","json":true}`
+Assets: `{"code":"atomicassets","scope":"{owner}","table":"assets","json":true,"limit":100}`
+
+## IPFS Image Upload
+
+To upload images for NFTs, POST to Pinata:
+```
+POST https://api.pinata.cloud/pinning/pinFileToIPFS
+Headers:
+  Authorization: Bearer {PINATA_JWT}
+  Content-Type: multipart/form-data
+Body:
+  file: (binary image data)
+```
+
+Response includes `IpfsHash` — use this as the `img` value in templates/collections.
+Display URL: `https://ipfs.io/ipfs/{IpfsHash}`
+
+## Airdrop Pattern
+
+To airdrop NFTs to a list of accounts:
+1. Create collection + schema + template (once)
+2. For each recipient: `mintasset` with `new_asset_owner` set to the recipient
+3. Or: mint all to yourself, then `transfer` in batches of ~50 per transaction
+
+## Token-Holder Airdrop
+
+To airdrop to holders of a specific SimpleDEX token:
+1. Query token holders: `GET https://indexer.protonnz.com/api/tokens?symbol={SYMBOL}` → get holders list
+2. Or query on-chain: `POST /v1/chain/get_table_rows` with `{"code":"simpletoken","scope":"{SYMBOL}","table":"accounts","json":true,"limit":1000}`
+3. Filter by minimum balance if desired
+4. Mint or transfer NFTs to each qualifying holder
+
+## Marketplace (Buy/Sell NFTs)
+
+The `atomicmarket` contract handles NFT sales on XPR Network.
+API: https://xpr.api.atomicassets.io/atomicmarket/v1/
+
+### Register a Marketplace (one-time)
+
+Action: `atomicmarket::regmarket`
+```json
+{
+  "creator": "youraccount",
+  "marketplace_name": "youraccount"
+}
+```
+This registers your account to earn maker/taker fees (1% each) on sales through your marketplace.
+
+### List NFT for Sale (two actions in one transaction)
+
+Action 1: `atomicmarket::announcesale`
+```json
+{
+  "seller": "youraccount",
+  "asset_ids": [4398047002936],
+  "listing_price": "100.0000 XPR",
+  "settlement_symbol": "4,XPR",
+  "maker_marketplace": "charliebot"
+}
+```
+
+Action 2: `atomicassets::createoffer`
+```json
+{
+  "sender": "youraccount",
+  "recipient": "atomicmarket",
+  "sender_asset_ids": [4398047002936],
+  "recipient_asset_ids": [],
+  "memo": "sale"
+}
+```
+
+Rules:
+- Both actions MUST be in the same transaction
+- listing_price: string with exactly 4 decimal places for XPR (e.g. "1.0000 XPR")
+- settlement_symbol: "4,XPR" for XPR payments
+- Supported tokens: XPR (eosio.token), XUSDC (xtokens), XMD (xmd.token)
+- maker_marketplace: use "charliebot" for nft.charliebot.dev (earns 1% maker fee)
+- The createoffer transfers the NFT to atomicmarket escrow until sold or cancelled
+
+### Buy NFT (two actions in one transaction)
+
+Action 1: `eosio.token::transfer`
+```json
+{
+  "from": "buyeraccount",
+  "to": "atomicmarket",
+  "quantity": "100.0000 XPR",
+  "memo": "deposit"
+}
+```
+
+Action 2: `atomicmarket::purchasesale`
+```json
+{
+  "buyer": "buyeraccount",
+  "sale_id": 391639,
+  "intended_delphi_median": 0,
+  "taker_marketplace": "charliebot"
+}
+```
+
+Rules:
+- quantity must EXACTLY match the listing_price
+- For XPR: use eosio.token contract, 4 decimal places
+- For XUSDC: use xtokens contract, 6 decimal places
+- taker_marketplace: use "charliebot" for nft.charliebot.dev (earns 1% taker fee)
+- intended_delphi_median: set to 0 (price oracle, not needed for fixed-price sales)
+
+### Cancel Listing
+
+Action: `atomicmarket::cancelsale`
+```json
+{
+  "sale_id": 391639
+}
+```
+Authorization: seller's active permission. NFT returns to seller's wallet.
+
+### Query Sales (API)
+
+Browse all active sales:
+`GET /atomicmarket/v1/sales?state=1&order=desc&sort=created&limit=50`
+
+Filter by collection:
+`GET /atomicmarket/v1/sales?state=1&collection_name=whisperer123&limit=50`
+
+Filter by seller:
+`GET /atomicmarket/v1/sales?state=1&seller=youraccount`
+
+Sales history (completed):
+`GET /atomicmarket/v1/sales?state=3&sort=updated&order=desc&limit=20`
+
+Sale by ID:
+`GET /atomicmarket/v1/sales/{sale_id}`
+
+### Price Format Notes
+- API returns prices as raw integers: 10000 = 1.0000 XPR (divide by 10^precision)
+- XPR precision: 4 (divide by 10000)
+- XUSDC precision: 6 (divide by 1000000)
+- When listing, always use the string format: "1.0000 XPR"
+
+### Fee Structure
+- Maker fee: 1% (paid by seller, goes to maker_marketplace)
+- Taker fee: 1% (paid by buyer, goes to taker_marketplace)
+- Collection fee: set by collection creator (market_fee field, 0-15%)
+
+## Common Attribute Types
+- string: text, IPFS hashes, URLs
+- uint64: large numbers, IDs
+- uint32: supply counts
+- float64: percentages, prices
+- image fields: store as IPFS hash (string type), display via gateway URL
