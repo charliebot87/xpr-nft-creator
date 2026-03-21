@@ -238,6 +238,10 @@ function SendTokens({ ual }: { ual: any }) {
     [dexTokens, dexTokenSearch]
   );
 
+  function formatRawQuantity(amount: number, token: UserToken): string {
+    return `${amount.toFixed(token.precision)} ${token.symbol}`;
+  }
+
   function formatQuantity(amount: number, token: UserToken): string {
     const fixed = amount.toFixed(token.precision);
     const [whole, decimals] = fixed.split('.');
@@ -340,7 +344,7 @@ function SendTokens({ ual }: { ual: any }) {
           data: {
             from: accountName,
             to: account,
-            quantity: formatQuantity(batchAmounts[idx], selectedToken),
+            quantity: formatRawQuantity(batchAmounts[idx], selectedToken),
             memo,
           },
         }));
