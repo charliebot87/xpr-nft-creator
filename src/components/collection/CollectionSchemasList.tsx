@@ -73,7 +73,7 @@ export function CollectionSchemasList({
               <Card
                 key={schema.schema_name}
                 title={schema.schema_name}
-                subtitle={`${schema.format.length} Attributes`}
+                subtitle={`${schema.format?.length ?? 0} Attributes`}
                 href={`/${chainKey}/collection/${collectionName}/schema/${schema.schema_name}`}
                 withThumbnail={false}
               />
@@ -108,3 +108,4 @@ export function CollectionSchemasList({
     </section>
   );
 }
+
