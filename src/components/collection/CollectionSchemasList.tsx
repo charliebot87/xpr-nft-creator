@@ -45,7 +45,7 @@ export function CollectionSchemasList({
         offset,
       });
 
-      setSchemas((state) => [...state, ...data.data]);
+      setSchemas((state) => [...state, ...(data.data ?? [])]);
     } catch (error) {
       console.error(error);
     }

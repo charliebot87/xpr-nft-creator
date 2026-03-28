@@ -46,7 +46,7 @@ export function CollectionTemplatesList({
         offset,
       });
 
-      setTemplates((state) => [...state, ...data.data]);
+      setTemplates((state) => [...state, ...(data.data ?? [])]);
     } catch (error) {
       console.error(error);
     }
@@ -76,16 +76,16 @@ export function CollectionTemplatesList({
                 id={template.template_id}
                 href={`/${chainKey}/collection/${collectionName}/template/${template.template_id}`}
                 image={
-                  template.immutable_data.img
+                  template.immutable_data?.img
                     ? `${ipfsEndpoint}/${template.immutable_data.img}`
                     : ''
                 }
                 video={
-                  template.immutable_data.video
+                  template.immutable_data?.video
                     ? `${ipfsEndpoint}/${template.immutable_data.video}`
                     : ''
                 }
-                title={template.name}
+                title={template.name ?? ''}
                 subtitle={`${template.issued_supply} ${
                   Number(template.issued_supply) > 1 ? 'NFTs' : 'NFT'
                 }`}

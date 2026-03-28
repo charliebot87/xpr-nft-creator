@@ -67,8 +67,8 @@ export function CollectionStats({ stats, collection }: CollectionStatsProps) {
   }, [collection.collection_name]);
 
   const statsContent = [
-    ['Name', collection.collection_name],
-    ['Created', new Date(Number(collection.created_at_time)).toLocaleString()],
+    ['Name', collection.collection_name ?? ''],
+    ['Created', collection.created_at_time ? new Date(Number(collection.created_at_time)).toLocaleString() : ''],
     ['NFTs', stats.assets ?? 0],
     ['Burned', stats.burned ?? 0],
     ['Templates', stats.templates],
@@ -77,9 +77,9 @@ export function CollectionStats({ stats, collection }: CollectionStatsProps) {
   ];
 
   const creatorInfo =
-    collection.data.creator_info && JSON.parse(collection.data.creator_info);
+    collection.data?.creator_info && JSON.parse(collection.data.creator_info);
   const socials =
-    collection.data.socials && JSON.parse(collection.data.socials);
+    collection.data?.socials && JSON.parse(collection.data.socials);
 
   const hasCreatorInfo =
     creatorInfo &&
@@ -125,7 +125,7 @@ export function CollectionStats({ stats, collection }: CollectionStatsProps) {
         <div className="grid md:grid-cols-2 grid-cols-1 gap-12">
           <div className="flex-1">
             <h3 className="headline-3 mb-4">Description</h3>
-            <p className="body-1">{collection.data.description}</p>
+            <p className="body-1">{collection.data?.description ?? ''}</p>
           </div>
           <div className="flex-1">
             <h3 className="headline-3 mb-4">Stats</h3>
@@ -187,24 +187,24 @@ export function CollectionStats({ stats, collection }: CollectionStatsProps) {
           <div className="flex-1">
             <h3 className="headline-3 mb-4">Authorized accounts</h3>
             <div className="flex flex-row gap-2 flex-wrap">
-              {collection.authorized_accounts.map((item, index) => (
+              {(collection.authorized_accounts ?? []).map((item, index) => (
                 <span key={item} className="body-1">
                   {item}
-                  {index !== collection.authorized_accounts.length - 1
+                  {index !== (collection.authorized_accounts ?? []).length - 1
                     ? ','
                     : '.'}
                 </span>
               ))}
             </div>
           </div>
-          {collection.notify_accounts.length > 0 && (
+          {(collection.notify_accounts ?? []).length > 0 && (
             <div className="flex-1">
               <h3 className="headline-3 mb-4">Notified accounts</h3>
               <div className="flex flex-row gap-2 flex-wrap">
-                {collection.notify_accounts.map((item, index) => (
+                {(collection.notify_accounts ?? []).map((item, index) => (
                   <span key={item} className="body-1">
                     {item}
-                    {index !== collection.notify_accounts.length - 1
+                    {index !== (collection.notify_accounts ?? []).length - 1
                       ? ','
                       : '.'}
                   </span>

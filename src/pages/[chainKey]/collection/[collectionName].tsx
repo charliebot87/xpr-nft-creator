@@ -79,10 +79,14 @@ function Collection({
   useEffect(() => {
     const tabsElement = tabsRef.current;
 
-    window.addEventListener('scroll', () => {
+    const handleScroll = () => {
+      if (!tabsElement) return;
       const { top } = tabsElement.getBoundingClientRect();
       setIsAddBackground(top <= 88);
-    });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   function handleSelectedTabIndex(tabIndex: number) {
@@ -125,14 +129,16 @@ function Collection({
                 Created by {collection.author}
               </Link>
             )}
-            <a
-              href={collection.data.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn"
-            >
-              Website
-            </a>
+            {collection.data?.url && (
+              <a
+                href={collection.data.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn"
+              >
+                Website
+              </a>
+            )}
           </div>
         </Header.Content>
         <Header.Banner
@@ -211,8 +217,8 @@ function Collection({
               chainKey={chainKey}
               initialAssets={assets}
               initialBurnedAssets={burnedAssets}
-              totalAssets={stats.assets - stats.burned}
-              totalBurned={stats.burned}
+              totalAssets={(stats.assets ?? 0) - (stats.burned ?? 0)}
+              totalBurned={stats.burned ?? 0}
               collectionName={collection.collection_name}
               hasAuthorization={hasAuthorization}
             />

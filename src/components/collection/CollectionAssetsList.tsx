@@ -55,7 +55,7 @@ export function CollectionAssetsList({
         offset,
       });
 
-      setAssets((state) => [...state, ...data.data]);
+      setAssets((state) => [...state, ...(data.data ?? [])]);
     } catch (error) {
       console.error(error);
     }
@@ -74,7 +74,7 @@ export function CollectionAssetsList({
         offset: burnedOffset,
       });
 
-      setBurnedAssets((state) => [...state, ...data.data]);
+      setBurnedAssets((state) => [...state, ...(data.data ?? [])]);
     } catch (error) {
       console.error(error);
     }
@@ -102,18 +102,18 @@ export function CollectionAssetsList({
               {assets.map((asset) => (
                 <Card
                   key={asset.asset_id}
-                  id={asset.template && asset.template.template_id}
+                  id={asset.template?.template_id}
                   href={`/${chainKey}/collection/${collectionName}/asset/${asset.asset_id}`}
                   image={
-                    asset.data.img ? `${ipfsEndpoint}/${asset.data.img}` : ''
+                    asset.data?.img ? `${ipfsEndpoint}/${asset.data.img}` : ''
                   }
                   video={
-                    asset.data.video
+                    asset.data?.video
                       ? `${ipfsEndpoint}/${asset.data.video}`
                       : ''
                   }
-                  title={asset.name}
-                  subtitle={asset.owner && `Owned by ${asset.owner}`}
+                  title={asset.name ?? ''}
+                  subtitle={asset.owner ? `Owned by ${asset.owner}` : undefined}
                 />
               ))}
             </CardContainer>
@@ -156,18 +156,18 @@ export function CollectionAssetsList({
               {burnedAssets.map((asset) => (
                 <Card
                   key={asset.asset_id}
-                  id={asset.template && asset.template.template_id}
+                  id={asset.template?.template_id}
                   href={`/${chainKey}/collection/${collectionName}/asset/${asset.asset_id}`}
                   image={
-                    asset.data.img ? `${ipfsEndpoint}/${asset.data.img}` : ''
+                    asset.data?.img ? `${ipfsEndpoint}/${asset.data.img}` : ''
                   }
                   video={
-                    asset.data.video
+                    asset.data?.video
                       ? `${ipfsEndpoint}/${asset.data.video}`
                       : ''
                   }
-                  title={asset.name}
-                  subtitle={`Burned by ${asset.burned_by_account}`}
+                  title={asset.name ?? ''}
+                  subtitle={`Burned by ${asset.burned_by_account ?? 'unknown'}`}
                 />
               ))}
             </CardContainer>
