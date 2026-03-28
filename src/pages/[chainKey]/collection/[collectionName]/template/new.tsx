@@ -98,6 +98,8 @@ function NewTemplate({
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [clearElement, setClearElement] = useState('');
+  const [imgError, setImgError] = useState('');
+  const [nameError, setNameError] = useState('');
   const [modal, setModal] = useState<ModalProps>({
     title: '',
     message: '',
@@ -121,6 +123,8 @@ function NewTemplate({
 
   function handleSetSchemasAttributes(schemaName: string) {
     reset();
+    setImgError('');
+    setNameError('');
     const selectedSchema = schemas.find(
       (schema) => schema.schema_name === schemaName
     );
@@ -156,6 +160,33 @@ function NewTemplate({
     maxSupply,
     ...attributes
   }: FormDataProps) {
+    // Validate img field if schema has one
+    const hasImgAttribute = schemasAttributes.some(
+      (attr) => attr.type === 'image' || attr.name === 'img'
+    );
+    const imgAttribute = schemasAttributes.find(
+      (attr) => attr.type === 'image' || attr.name === 'img'
+    );
+    if (hasImgAttribute && imgAttribute) {
+      const imgValue = (attributes as any)[imgAttribute.name];
+      if (!imgValue || imgValue === '' || (typeof imgValue === 'object' && imgValue?.length === 0)) {
+        setImgError('An image is required to create a template');
+        return;
+      }
+    }
+    setImgError('');
+
+    // Validate name field if schema has one
+    const nameAttribute = schemasAttributes.find((attr) => attr.name === 'name');
+    if (nameAttribute) {
+      const nameValue = (attributes as any)['name'];
+      if (!nameValue || (typeof nameValue === 'string' && nameValue.trim() === '')) {
+        setNameError('A name is required to create a template');
+        return;
+      }
+    }
+    setNameError('');
+
     setIsLoading(true);
 
     try {
@@ -391,6 +422,16 @@ function NewTemplate({
                     key={schemaAttribute.name}
                     className="grid grid-cols-12 gap-4 mt-8 pb-8 lg:pb-0 lg:mt-4 border-b border-neutral-700 lg:border-none"
                   >
+                    {(schemaAttribute.type === 'image' || schemaAttribute.name === 'img') && imgError && (
+                      <div className="col-span-12">
+                        <p className="body-2 text-red-500">{imgError}</p>
+                      </div>
+                    )}
+                    {schemaAttribute.name === 'name' && nameError && (
+                      <div className="col-span-12">
+                        <p className="body-2 text-red-500">{nameError}</p>
+                      </div>
+                    )}
                     <div
                       className={`col-span-12 sm:col-span-6 lg:col-span-3 xl:col-span-3 p-3 flex items-center justify-center border border-neutral-700 rounded ${
                         schemaAttribute.isImmutable ? '' : 'opacity-50'
@@ -409,6 +450,7 @@ function NewTemplate({
                               schemaAttributeIndex,
                               isImmutable: true,
                             });
+                            setImgError('');
                           }}
                           setValue={setValue}
                           title="Add Image"
@@ -502,6 +544,9 @@ function NewTemplate({
                                 schemaAttributeIndex,
                                 isImmutable: true,
                               });
+                              if (schemaAttribute.name === 'name') {
+                                setNameError('');
+                              }
                             },
                           })}
                           type="text"
