@@ -23,4 +23,8 @@ export const collectionTabs = [
     name: 'For Sale',
     key: 'for-sale',
   },
+  {
+    name: 'Market',
+    key: 'market',
+  },
 ];
